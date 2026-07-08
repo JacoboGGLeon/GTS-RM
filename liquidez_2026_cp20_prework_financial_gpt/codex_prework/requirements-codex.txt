@@ -1,0 +1,12 @@
+numpy
+pandas
+polars
+pyarrow
+scikit-learn
+matplotlib
+optuna
+torch
+tqdm
+boto3
+nbformat
+pytest

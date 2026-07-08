@@ -1,0 +1,9 @@
+* text=auto eol=lf
+*.ipynb text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.csv text eol=lf
+*.json text eol=lf
+*.sql text eol=lf
+*.zst binary

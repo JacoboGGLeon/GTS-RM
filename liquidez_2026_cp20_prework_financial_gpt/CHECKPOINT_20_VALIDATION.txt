@@ -1,0 +1,36 @@
+Checkpoint 20 validation
+========================
+
+Scope
+-----
+- causal robust MASE objective
+- hierarchical balanced sampling
+- two-fidelity HPO
+- curriculum-vs-shuffled control
+- single-metric Financial-GPT monitor
+
+Results
+-------
+- 148 tests collected across 21 test modules.
+- All 148 tests passed in isolated/module runs with OMP_NUM_THREADS=1 and MKL_NUM_THREADS=1.
+- 7 dedicated Checkpoint 20 regression tests passed.
+- 32 high-impact regression tests re-run after final manager/notebook changes.
+- 20 Python modules compile successfully.
+- 12 notebooks / 157 code cells compile after IPython transformation.
+- All notebook code cells have empty outputs and null execution counts.
+
+Key gates
+---------
+- robust_macro_mase is the default HPO and productive selection metric.
+- MASE denominators use only pre-holdout/pre-comparison observations.
+- monitor winner selection uses only MASE; no redundant rank_score.
+- sampler balances series type, curriculum level, cross_key_id and window.
+- replay allocation remains exact and balanced within each pool.
+- proxy HPO and medium-fidelity finalist selection are independently persisted.
+- curriculum and shuffled controls preserve equal epoch/sample/optimizer budgets.
+- all four global notebooks expose the same Checkpoint 20 contract.
+
+Not executed
+------------
+- No full productive SageMaker training was run in this validation environment.
+- No curriculum-vs-shuffled productive ablation was run; the switch and paired helper are ready.

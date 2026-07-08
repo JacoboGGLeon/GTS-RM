@@ -1,0 +1,13 @@
+Checkpoint 19 validation
+========================
+
+- 141 tests collected.
+- 141 tests passed across isolated/grouped pytest invocations.
+- 8 checkpoint-19-specific regression tests passed.
+- 34 directly affected persistence/dataset/notebook tests were rerun after the final manifest audit and passed.
+- 20 Python modules compiled.
+- 12 notebooks compiled cell-by-cell.
+- All notebook outputs and execution counts are empty.
+- Synthetic end-to-end dataset factory and all four architecture forwards passed with auxiliary AE enabled and disabled.
+
+The monolithic pytest process was not used as the release gate because the execution container accumulated native-library resources and stalled late in the suite; isolated/grouped test processes completed without failures.

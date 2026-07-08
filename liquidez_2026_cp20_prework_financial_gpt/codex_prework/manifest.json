@@ -1,0 +1,16 @@
+{
+  "base_checkpoint": 20,
+  "prepared_for": "Financial-GPT staged roadmap",
+  "new_runtime_code": ["financial_gpt_flags.py"],
+  "new_prework_docs": [
+    "codex_prework/00_BUNDLE_ANALYSIS_CP20.md",
+    "codex_prework/01_TARGET_ARCHITECTURE_FLAGS.md",
+    "codex_prework/02_ROADMAP_CHECKPOINTS_FROM_CP20.md",
+    "codex_prework/03_CODEX_START_HERE.md",
+    "codex_prework/04_PREWORK_SUMMARY_FOR_USER.md",
+    "codex_prework/requirements-codex.txt"
+  ],
+  "default_behavior_should_match_cp20": true,
+  "next_checkpoint_recommended": "21_feature_flags_and_cp20_compatibility_gate",
+  "first_accuracy_checkpoint_recommended": "23_local_residual_decoder"
+}

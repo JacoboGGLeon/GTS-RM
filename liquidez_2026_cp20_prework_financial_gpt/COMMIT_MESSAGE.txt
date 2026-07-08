@@ -1,0 +1,10 @@
+feat(financial-gfm): align objective sampling and curriculum
+
+- use causal robust macro MASE across HPO, early stopping, checkpoints, and monitor
+- persist train-referenced MASE denominators with a stable level floor
+- balance training by series type, curriculum level, series, and window
+- preserve exact replay allocation while balancing current and replay pools
+- add two-stage HPO with three validation windows and medium-fidelity finalists
+- expose controlled curriculum versus shuffled training with equal budgets
+- remove redundant multi-metric rank voting from the Financial-GPT monitor
+- bump artifact schema to 1.4 and add checkpoint 20 regression gates
