@@ -1,6 +1,6 @@
 {
   "name": "base_cp20",
-  "checkpoint": "CP26",
+  "checkpoint": "CP27",
   "baseline": "CP20",
   "architecture_family": "global",
   "supported_architectures": ["mlp", "mlp_vae", "rnn", "rnn_bi"],
@@ -26,6 +26,7 @@
     "trainer_entrypoint": "gts_rm.training.build_mac3_trainer",
     "candidates_source": "MAC3_TEST/configs/candidates_smoke.json"
   },
+  "acceptance_report": "MAC3_TEST/reports/CP27_ACCEPTANCE_REPORT.md",
   "facade_modules": [
     "gts_rm.config",
     "gts_rm.data",

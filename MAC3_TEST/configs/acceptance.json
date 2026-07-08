@@ -1,6 +1,6 @@
 {
   "name": "mac3_test_acceptance",
-  "checkpoint": "CP26",
+  "checkpoint": "CP27",
   "release_gate": {
     "baseline": "CP20",
     "must_pass_tests": true,
@@ -10,7 +10,8 @@
     "must_run_smoke_workflow": true,
     "must_load_migrated_configs": true,
     "must_load_data_contract": true,
-    "must_load_model_training_facade": true
+    "must_load_model_training_facade": true,
+    "must_have_acceptance_report": true
   },
   "metrics": {
     "primary": "robust_macro_mase",
@@ -29,6 +30,7 @@
     "gts_rm config bundle validation",
     "gts_rm data contract validation",
     "gts_rm model/training facade validation",
-    "MAC3_TEST smoke workflow validation"
+    "MAC3_TEST smoke workflow validation",
+    "MAC3_TEST acceptance report"
   ]
 }

@@ -1,89 +1,59 @@
-# CP26 - MAC3_TEST Model/Training Facade Migration
+# CP27 - MAC3_TEST Acceptance Report
 
 `MAC3_TEST` is the release-first use case for GTS-RM. It is not a tutorial.
-The CP20 bundle remains the implementation source while model and training
-entrypoints move behind stable `gts_rm.models` and `gts_rm.training` helpers.
+CP27 records the first acceptance report for the migrated wrapper-first API.
 
 ## Scope
 
-CP21 defined the use-case boundary. CP22 added the library facade. CP23 added
-smoke workflows for the four locked CP20 global architectures. CP24 migrated
-runtime configs. CP25 migrated the data contract. CP26 migrates the model and
-training facade:
+CP27 validates and documents the state reached after CP24-CP26:
 
-- keep CP20 implementation files in place;
-- keep CP20 model/training behavior unchanged;
-- build MAC3 smoke models through `gts_rm.models` from migrated configs;
-- load MAC3 candidate/training configs through `gts_rm.training`;
-- build CP20 `GlobalTrainer` instances through `gts_rm.training`;
-- avoid executing productive training until a later workflow checkpoint.
+- config facade migrated through `gts_rm.config`;
+- data contract migrated through `gts_rm.data`;
+- model construction migrated through `gts_rm.models`;
+- trainer construction migrated through `gts_rm.training`;
+- CP20 behavior preserved through the full pytest suite;
+- acceptance evidence captured under `MAC3_TEST/reports`.
 
-CP26 does not:
+CP27 does not:
 
 - train a productive model;
-- load production MAC3 data;
-- move CP20 modules;
+- ingest real MAC3 data;
+- move CP20 implementation modules;
 - add residual, quantile, patching or SSL behavior.
 
-## Public Model Facade
+## Acceptance Artifacts
 
-```python
-from gts_rm import models
-
-specs = models.mac3_model_specs()
-model = models.build_mac3_smoke_model("mlp")
-model = models.build_global_model_from_config(payload)
+```text
+MAC3_TEST/reports/CP27_ACCEPTANCE_REPORT.md
+MAC3_TEST/reports/api_coverage.svg
 ```
 
-The facade must cover exactly `mlp`, `mlp_vae`, `rnn` and `rnn_bi`.
+The acceptance report records:
 
-## Public Training Facade
+- smoke suite status;
+- compileall status;
+- full pytest status;
+- API coverage badge generated from a focused public API probe;
+- explicit answer on API migration and use-case behavior preservation.
 
-```python
-from gts_rm import training
+## Verdict
 
-candidates = training.load_mac3_candidates()
-candidate = training.get_mac3_candidate("rnn")
-trainer = training.build_mac3_trainer("rnn")
-summary = training.mac3_training_facade_summary()
-```
+Accepted.
 
-The trainer is CP20 `GlobalTrainer` configured from `MAC3_TEST/configs`, but CP26
-only validates construction. Real training remains deferred.
+We migrated the public API surface correctly while keeping current use-case
+functionality intact. The implementation remains CP20-backed and wrapper-first.
+Real data ingestion and productive training remain deferred.
 
-## Data And Config Contracts
-
-The CP24 config bundle and CP25 data contract remain active:
+## Public Entrypoints Accepted
 
 ```python
-from gts_rm import config, data
+from gts_rm import config, data, models, training
 
 bundle = config.load_mac3_config_bundle()
 contract = data.load_mac3_data_contract()
+model = models.build_mac3_smoke_model("mlp")
+trainer = training.build_mac3_trainer("mlp")
 ```
-
-## Smoke Workflow Contract
-
-The current workflow suite still uses synthetic tensors only. That is intentional:
-CP26 validates model/trainer construction before introducing real ingestion and
-training execution.
-
-## Library Facade Contract
-
-The use case must import operational capabilities from `gts_rm`, not directly
-from the CP20 bundle.
-
-```text
-gts_rm.config      config loading, feature flags and stage configuration
-gts_rm.data        data contract, schema, scaler, split, dataset and temporal axis
-gts_rm.models      model specs and builders over CP20 global architectures
-gts_rm.training    candidate loading and trainer builders over CP20 training APIs
-gts_rm.evaluation  validation, monitoring and comparison APIs
-gts_rm.artifacts   manager, local artifacts and S3 persistence APIs
-```
-
-The facade is wrapper-first. CP20 remains the implementation source until later
-checkpoints migrate internals module by module.
 
 ## Migration Rule
 

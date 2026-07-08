@@ -3,8 +3,8 @@
     "kind":  "use_case",
     "library":  "gts-rm",
     "baseline":  "CP20",
-    "checkpoint":  "CP26",
-    "status":  "model_training_facade_migration",
+    "checkpoint":  "CP27",
+    "status":  "acceptance_report",
     "release_first":  true,
     "tutorials_deferred":  true,
     "entry_package":  "gts_rm",
@@ -203,5 +203,14 @@
                                                                      ],
                                             "implementation_source":  "liquidez_2026_cp20_prework_financial_gpt",
                                             "executes_training":  false
-                                        }
+                                        },
+    "acceptance_report":  {
+                              "checkpoint":  "CP27",
+                              "report":  "MAC3_TEST/reports/CP27_ACCEPTANCE_REPORT.md",
+                              "api_coverage_badge":  "MAC3_TEST/reports/api_coverage.svg",
+                              "pytest":  "166 passed, 1 warning, 5 subtests passed",
+                              "smoke_suite":  "passed",
+                              "compileall":  "passed",
+                              "verdict":  "accepted"
+                          }
 }

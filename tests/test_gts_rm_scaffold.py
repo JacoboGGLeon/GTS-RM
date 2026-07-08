@@ -66,8 +66,8 @@ def test_mac3_test_contract_loads_and_validates() -> None:
 
     contract = gts_rm.load_use_case("MAC3_TEST")
     assert contract.name == "MAC3_TEST"
-    assert contract.manifest["checkpoint"] == "CP26"
-    assert contract.manifest["status"] == "model_training_facade_migration"
+    assert contract.manifest["checkpoint"] == "CP27"
+    assert contract.manifest["status"] == "acceptance_report"
     assert contract.contract_path.exists()
     assert contract.cp20_bundle_path == gts_rm.CP20_BUNDLE_ROOT
     assert contract.frozen_contract_path.exists()
@@ -77,6 +77,7 @@ def test_mac3_test_contract_loads_and_validates() -> None:
     assert contract.manifest["data_contract_migration"]["loader"] == "gts_rm.data.load_mac3_data_contract"
     assert "gts_rm.models.build_global_model_from_config" in contract.manifest["model_training_facade_migration"]["model_entrypoints"]
     assert "gts_rm.training.build_mac3_trainer" in contract.manifest["model_training_facade_migration"]["training_entrypoints"]
+    assert contract.manifest["acceptance_report"]["verdict"] == "accepted"
 
 
 def test_mac3_test_configs_match_locked_cp20_contract() -> None:
@@ -97,7 +98,7 @@ def test_mac3_test_configs_match_locked_cp20_contract() -> None:
     assert manifest["configs"]["candidates"] == "MAC3_TEST/configs/candidates_smoke.json"
     assert manifest["configs"]["notebooks"] == "MAC3_TEST/configs/notebooks_mac3.json"
     assert manifest["configs"]["data_contract"] == "MAC3_TEST/configs/data_contract.json"
-    assert base["checkpoint"] == "CP26"
+    assert base["checkpoint"] == "CP27"
     assert base["facade_modules"] == FACADE_MODULES
     assert base["model_inputs"] == manifest["locked_cp20_contract"]["model_inputs"]
     assert base["supported_architectures"] == manifest["locked_cp20_contract"]["architectures"]
@@ -112,13 +113,14 @@ def test_mac3_test_configs_match_locked_cp20_contract() -> None:
         assert smoke["checkpoint"] == "CP24"
         assert smoke["architecture"] == architecture
         assert smoke["expected_output_shape"] == [2, 3, 1]
-    assert acceptance["checkpoint"] == "CP26"
+    assert acceptance["checkpoint"] == "CP27"
     assert acceptance["metrics"]["primary"] == "robust_macro_mase"
     assert acceptance["release_gate"]["must_use_library_facade"] is True
     assert acceptance["release_gate"]["must_run_smoke_workflow"] is True
     assert acceptance["release_gate"]["must_load_migrated_configs"] is True
     assert acceptance["release_gate"]["must_load_data_contract"] is True
     assert acceptance["release_gate"]["must_load_model_training_facade"] is True
+    assert acceptance["release_gate"]["must_have_acceptance_report"] is True
 
 
 def test_cp22_facade_modules_import_and_expose_expected_symbols() -> None:
@@ -265,3 +267,16 @@ def test_cp24_smoke_workflows_do_not_import_cp20_modules_directly() -> None:
         source = path.read_text(encoding="utf-8")
         for forbidden in forbidden_imports:
             assert forbidden not in source
+
+def test_cp27_acceptance_report_and_badge_are_versioned() -> None:
+    report = ROOT / "MAC3_TEST" / "reports" / "CP27_ACCEPTANCE_REPORT.md"
+    badge = ROOT / "MAC3_TEST" / "reports" / "api_coverage.svg"
+
+    assert report.exists()
+    assert badge.exists()
+    report_text = report.read_text(encoding="utf-8")
+    badge_text = badge.read_text(encoding="utf-8")
+    assert "CP27 - MAC3_TEST Acceptance Report" in report_text
+    assert "166 passed, 1 warning, 5 subtests passed" in report_text
+    assert "32.04%" in report_text
+    assert "api coverage: 32.04%" in badge_text

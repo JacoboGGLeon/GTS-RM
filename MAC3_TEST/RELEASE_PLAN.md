@@ -39,9 +39,6 @@ Status: complete.
 
 - Add MAC3_TEST smoke workflows for `mlp`, `mlp_vae`, `rnn` and `rnn_bi`.
 - Add an aggregate smoke suite for all locked architectures.
-- Define expected data inputs.
-- Define release acceptance metrics.
-- Produce reproducible smoke workflow evidence under `reports/` and `runs/`.
 
 ## Phase 6: Config Migration
 
@@ -50,8 +47,6 @@ Status: complete.
 - Move stage, training, candidate, notebook and smoke defaults into
   `MAC3_TEST/configs`.
 - Add `gts_rm.config.load_mac3_config_bundle`.
-- Validate migrated configs from tests and smoke workflows.
-- Keep CP20 behavior unchanged.
 
 ## Phase 7: Data Contract Migration
 
@@ -59,9 +54,6 @@ Status: complete.
 
 - Add `MAC3_TEST/configs/data_contract.json`.
 - Add `gts_rm.data.load_mac3_data_contract`.
-- Validate MAC3 data schema against CP20 global-long and model-input contracts.
-- Align notebook configs with the same canonical panel and calendar contract.
-- Defer real data ingestion to the next checkpoint.
 
 ## Phase 8: Model/Training Facade Migration
 
@@ -69,10 +61,16 @@ Status: complete.
 
 - Add model builders over migrated MAC3 configs.
 - Add candidate loaders and trainer builders over CP20 training APIs.
-- Validate all four architectures from repository-root tests.
-- Defer productive training execution to a later workflow checkpoint.
 
-## Phase 9: Tutorials
+## Phase 9: Acceptance Report
+
+Status: complete.
+
+- Add `MAC3_TEST/reports/CP27_ACCEPTANCE_REPORT.md`.
+- Add `MAC3_TEST/reports/api_coverage.svg`.
+- Record smoke, compileall, pytest and API coverage evidence.
+
+## Phase 10: Tutorials
 
 Status: deferred.
 

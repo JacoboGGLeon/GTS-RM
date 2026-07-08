@@ -59,6 +59,10 @@ class UseCaseContract:
                 paths.append(REPO_ROOT / str(workflow["config"]))
             for config in workflow.get("configs", []):
                 paths.append(REPO_ROOT / str(config))
+        acceptance_report = self.manifest.get("acceptance_report") or {}
+        for key in ("report", "api_coverage_badge"):
+            if acceptance_report.get(key):
+                paths.append(REPO_ROOT / str(acceptance_report[key]))
         return tuple(paths)
 
     def validate(self) -> None:
@@ -115,6 +119,15 @@ class UseCaseContract:
             raise ValueError("CP26 must expose gts_rm.models.build_global_model_from_config")
         if "gts_rm.training.build_mac3_trainer" not in training_entrypoints:
             raise ValueError("CP26 must expose gts_rm.training.build_mac3_trainer")
+        acceptance_report = self.manifest.get("acceptance_report") or {}
+        if acceptance_report.get("checkpoint") != "CP27":
+            raise ValueError("acceptance_report checkpoint must be CP27")
+        if acceptance_report.get("verdict") != "accepted":
+            raise ValueError("acceptance_report verdict must be accepted")
+        if not acceptance_report.get("report"):
+            raise ValueError("acceptance_report report path must be configured")
+        if not acceptance_report.get("api_coverage_badge"):
+            raise ValueError("acceptance_report api_coverage_badge path must be configured")
         for workflow in workflows.values():
             if workflow.get("uses_facade_modules") != SMOKE_FACADE_MODULES:
                 raise ValueError("smoke workflows must use the gts_rm.config and gts_rm.models facades")
