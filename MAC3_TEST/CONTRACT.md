@@ -1,0 +1,88 @@
+﻿# CP21 - MAC3_TEST Contract
+
+`MAC3_TEST` is the release-first use case for GTS-RM. It is not a tutorial.
+The CP20 bundle remains the source of truth while the operational workflow
+migrates into this directory.
+
+## Scope
+
+CP21 defines the case boundary only:
+
+- declare the use-case inputs, outputs and acceptance metrics;
+- create stable directories for configs, data, artifacts, reports, runs and
+  optional notebooks;
+- keep all CP20 implementation files in place;
+- expose the CP20 core through `gts_rm` wrappers;
+- make the contract testable from the repository root.
+
+CP21 does not:
+
+- move CP20 modules;
+- change model behavior;
+- train a new productive model;
+- add residual, quantile, patching or SSL behavior.
+
+## Directory Contract
+
+```text
+MAC3_TEST/
+├─ configs/
+├─ data/
+├─ artifacts/
+├─ reports/
+├─ runs/
+├─ notebooks/
+├─ CONTRACT.md
+├─ README.md
+├─ RELEASE_PLAN.md
+└─ manifest.json
+```
+
+## Input Contract
+
+The canonical panel must follow the CP20 global-long schema. Required columns
+come from `global_contracts.GLOBAL_LONG_REQUIRED_COLUMNS`.
+
+Calendar/exogenous features must be aligned causally through the CP20 temporal
+axis and dataset factory. Future-known calendar features are allowed; future
+target leakage is not.
+
+## Output Contract
+
+The use case produces:
+
+- model artifacts under `MAC3_TEST/artifacts`;
+- run records under `MAC3_TEST/runs`;
+- evaluation reports under `MAC3_TEST/reports`.
+
+Until a later checkpoint changes the artifact schema, persisted model behavior
+continues to follow the CP20 manager/save/load contract.
+
+## Model Contract
+
+The CP20 lock remains active:
+
+- `forward` inputs: `y_context`, `x_history`, `x_future`, `x_static`;
+- output: `y_pred`;
+- latent representation: `extras["history_embedding"]`;
+- output shape: `[batch, horizon, 1]`;
+- architectures: `mlp`, `mlp_vae`, `rnn`, `rnn_bi`;
+- no `cross_key_id`, `account_currency_id`, raw `divisa`, raw `tipo_serie` or
+  `serie` in `forward`.
+
+## Acceptance Metrics
+
+The first release gate tracks:
+
+- `robust_macro_mase`;
+- `raw_wmape`;
+- `p90_series_error`;
+- `series_improved_pct`.
+
+The CP20 objective remains `robust_macro_mase` until a later checkpoint defines
+a compound score.
+
+## Migration Rule
+
+Each migration step must leave CP20 tests passing and add a MAC3_TEST or
+`gts_rm` test proving the new operational path works from the repository root.

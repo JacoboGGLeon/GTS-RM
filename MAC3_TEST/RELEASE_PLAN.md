@@ -1,4 +1,4 @@
-# MAC3_TEST Release Plan
+﻿# MAC3_TEST Release Plan
 
 ## Phase 1: Baseline
 
@@ -10,14 +10,22 @@ Status: complete.
 
 ## Phase 2: Library Extraction
 
-Status: in progress.
+Status: complete.
 
 - Add installable `gts_rm` package.
 - Keep CP20 files in place.
 - Provide stable imports for the current global model core.
 - Add package-level tests.
 
-## Phase 3: Use-Case Workflow
+## Phase 3: Use-Case Contract
+
+Status: in progress.
+
+- Lock `MAC3_TEST` as a release-first case.
+- Define inputs, outputs, configs and acceptance metrics.
+- Validate the manifest from tests.
+
+## Phase 4: Use-Case Workflow
 
 Status: pending.
 
@@ -26,7 +34,7 @@ Status: pending.
 - Define release acceptance metrics.
 - Produce a reproducible smoke workflow.
 
-## Phase 4: Tutorials
+## Phase 5: Tutorials
 
 Status: deferred.
 

@@ -1,0 +1,18 @@
+{
+  "name": "smoke_global_mlp",
+  "checkpoint": "CP21",
+  "architecture": "mlp",
+  "window_size": 5,
+  "horizon": 3,
+  "exogenous_dim": 2,
+  "static_dim": 4,
+  "model_config": {
+    "latent_dim": 8,
+    "enc_hidden_size": 16,
+    "enc_num_layers": 1,
+    "dec_hidden_size": 16,
+    "dec_num_layers": 1,
+    "use_auxiliary_autoencoder": false
+  },
+  "expected_output_shape": [2, 3, 1]
+}

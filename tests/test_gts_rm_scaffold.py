@@ -1,5 +1,6 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -40,3 +41,29 @@ def test_cp20_wrapper_builds_global_model() -> None:
 
     assert model.dimensions.window_size == 4
     assert model.dimensions.horizon == 2
+
+
+def test_mac3_test_contract_loads_and_validates() -> None:
+    import gts_rm
+
+    contract = gts_rm.load_use_case("MAC3_TEST")
+    assert contract.name == "MAC3_TEST"
+    assert contract.manifest["checkpoint"] == "CP21"
+    assert contract.contract_path.exists()
+    assert contract.cp20_bundle_path == gts_rm.CP20_BUNDLE_ROOT
+    assert contract.frozen_contract_path.exists()
+
+
+def test_mac3_test_configs_match_locked_cp20_contract() -> None:
+    manifest = json.loads((ROOT / "MAC3_TEST" / "manifest.json").read_text(encoding="utf-8"))
+    base = json.loads((ROOT / manifest["configs"]["base"]).read_text(encoding="utf-8"))
+    acceptance = json.loads((ROOT / manifest["configs"]["acceptance"]).read_text(encoding="utf-8"))
+
+    assert manifest["kind"] == "use_case"
+    assert manifest["release_first"] is True
+    assert manifest["tutorials_deferred"] is True
+    assert base["model_inputs"] == manifest["locked_cp20_contract"]["model_inputs"]
+    assert base["supported_architectures"] == manifest["locked_cp20_contract"]["architectures"]
+    assert base["output"] == manifest["locked_cp20_contract"]["output"]
+    assert base["latent"] == manifest["locked_cp20_contract"]["latent"]
+    assert acceptance["metrics"]["primary"] == "robust_macro_mase"

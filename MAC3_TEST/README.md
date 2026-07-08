@@ -1,4 +1,4 @@
-# MAC3_TEST
+﻿# MAC3_TEST
 
 `MAC3_TEST` is the first release use case for GTS-RM.
 
@@ -32,4 +32,20 @@ The package entry point is:
 
 ```python
 import gts_rm
+```
+
+## CP21 Contract
+
+CP21 locks this directory as the operational boundary. See `CONTRACT.md` and
+`manifest.json` for the machine-readable and human-readable contracts.
+
+The current directory layout is:
+
+```text
+configs/   versioned use-case configuration
+data/      canonical input data location
+artifacts/ model artifacts and persisted runs
+reports/   evaluation and acceptance reports
+runs/      run manifests and execution records
+notebooks/ optional notebooks, not the source of truth
 ```

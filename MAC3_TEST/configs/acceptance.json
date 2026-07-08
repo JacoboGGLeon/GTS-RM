@@ -1,0 +1,24 @@
+{
+  "name": "mac3_test_acceptance",
+  "checkpoint": "CP21",
+  "release_gate": {
+    "baseline": "CP20",
+    "must_pass_tests": true,
+    "must_preserve_cp20_contract": true,
+    "must_run_from_repo_root": true
+  },
+  "metrics": {
+    "primary": "robust_macro_mase",
+    "diagnostics": [
+      "raw_wmape",
+      "p90_series_error",
+      "series_improved_pct"
+    ]
+  },
+  "minimum_evidence": [
+    "compileall",
+    "pytest",
+    "MAC3_TEST manifest validation",
+    "gts_rm import validation"
+  ]
+}

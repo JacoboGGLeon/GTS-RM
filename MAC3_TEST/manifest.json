@@ -3,9 +3,54 @@
   "kind": "use_case",
   "library": "gts-rm",
   "baseline": "CP20",
+  "checkpoint": "CP21",
+  "status": "contract_locked",
   "release_first": true,
   "tutorials_deferred": true,
   "entry_package": "gts_rm",
   "frozen_contract": "liquidez_2026_cp20_prework_financial_gpt/BASELINE_CP20_LOCK.md",
-  "cp20_bundle": "liquidez_2026_cp20_prework_financial_gpt"
+  "cp20_bundle": "liquidez_2026_cp20_prework_financial_gpt",
+  "contract": "MAC3_TEST/CONTRACT.md",
+  "configs": {
+    "base": "MAC3_TEST/configs/base_cp20.json",
+    "smoke": "MAC3_TEST/configs/smoke_global_mlp.json",
+    "acceptance": "MAC3_TEST/configs/acceptance.json"
+  },
+  "directories": {
+    "configs": "MAC3_TEST/configs",
+    "data": "MAC3_TEST/data",
+    "artifacts": "MAC3_TEST/artifacts",
+    "reports": "MAC3_TEST/reports",
+    "runs": "MAC3_TEST/runs",
+    "notebooks": "MAC3_TEST/notebooks"
+  },
+  "inputs": {
+    "canonical_panel": {
+      "format": "global_long",
+      "required_columns_source": "global_contracts.GLOBAL_LONG_REQUIRED_COLUMNS",
+      "location": "MAC3_TEST/data"
+    },
+    "calendar_features": {
+      "format": "table",
+      "required": true,
+      "location": "MAC3_TEST/data"
+    }
+  },
+  "outputs": {
+    "model_artifact": "MAC3_TEST/artifacts",
+    "metrics_report": "MAC3_TEST/reports",
+    "run_record": "MAC3_TEST/runs"
+  },
+  "acceptance_metrics": [
+    "robust_macro_mase",
+    "raw_wmape",
+    "p90_series_error",
+    "series_improved_pct"
+  ],
+  "locked_cp20_contract": {
+    "model_inputs": ["y_context", "x_history", "x_future", "x_static"],
+    "output": "y_pred",
+    "latent": "history_embedding",
+    "architectures": ["mlp", "mlp_vae", "rnn", "rnn_bi"]
+  }
 }
