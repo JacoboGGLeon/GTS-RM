@@ -19,13 +19,21 @@ Status: complete.
 
 ## Phase 3: Use-Case Contract
 
-Status: in progress.
+Status: complete.
 
 - Lock `MAC3_TEST` as a release-first case.
 - Define inputs, outputs, configs and acceptance metrics.
 - Validate the manifest from tests.
 
-## Phase 4: Use-Case Workflow
+## Phase 4: Library Facade
+
+Status: in progress.
+
+- Expose CP20 through stable `gts_rm.*` modules.
+- Keep CP20 as the implementation source.
+- Make MAC3_TEST use facade imports.
+
+## Phase 5: Use-Case Workflow
 
 Status: pending.
 
@@ -34,7 +42,7 @@ Status: pending.
 - Define release acceptance metrics.
 - Produce a reproducible smoke workflow.
 
-## Phase 5: Tutorials
+## Phase 6: Tutorials
 
 Status: deferred.
 

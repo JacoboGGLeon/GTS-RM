@@ -1,6 +1,6 @@
 {
   "name": "base_cp20",
-  "checkpoint": "CP21",
+  "checkpoint": "CP22",
   "baseline": "CP20",
   "architecture_family": "global",
   "supported_architectures": ["mlp", "mlp_vae", "rnn", "rnn_bi"],
@@ -8,6 +8,14 @@
   "output": "y_pred",
   "latent": "history_embedding",
   "primary_metric": "robust_macro_mase",
+  "facade_modules": [
+    "gts_rm.config",
+    "gts_rm.data",
+    "gts_rm.models",
+    "gts_rm.training",
+    "gts_rm.evaluation",
+    "gts_rm.artifacts"
+  ],
   "feature_flags": {
     "use_causal_scaler": true,
     "use_observed_mask": false,

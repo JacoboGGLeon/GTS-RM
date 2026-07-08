@@ -1,6 +1,6 @@
 {
   "name": "smoke_global_mlp",
-  "checkpoint": "CP21",
+  "checkpoint": "CP22",
   "architecture": "mlp",
   "window_size": 5,
   "horizon": 3,

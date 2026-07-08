@@ -34,10 +34,11 @@ The package entry point is:
 import gts_rm
 ```
 
-## CP21 Contract
+## CP22 Contract
 
-CP21 locks this directory as the operational boundary. See `CONTRACT.md` and
-`manifest.json` for the machine-readable and human-readable contracts.
+CP21 locked this directory as the operational boundary. CP22 adds a stable
+library facade over CP20. See `CONTRACT.md` and `manifest.json` for the
+machine-readable and human-readable contracts.
 
 The current directory layout is:
 
@@ -48,4 +49,10 @@ artifacts/ model artifacts and persisted runs
 reports/   evaluation and acceptance reports
 runs/      run manifests and execution records
 notebooks/ optional notebooks, not the source of truth
+```
+
+The public facade is:
+
+```python
+from gts_rm import data, models, training, evaluation, artifacts, config
 ```

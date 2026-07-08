@@ -1,4 +1,4 @@
-﻿# CP21 - MAC3_TEST Contract
+﻿# CP22 - MAC3_TEST Library Facade Contract
 
 `MAC3_TEST` is the release-first use case for GTS-RM. It is not a tutorial.
 The CP20 bundle remains the source of truth while the operational workflow
@@ -6,21 +6,41 @@ migrates into this directory.
 
 ## Scope
 
-CP21 defines the case boundary only:
+CP21 defined the case boundary. CP22 adds the library facade:
 
 - declare the use-case inputs, outputs and acceptance metrics;
 - create stable directories for configs, data, artifacts, reports, runs and
   optional notebooks;
 - keep all CP20 implementation files in place;
 - expose the CP20 core through `gts_rm` wrappers;
-- make the contract testable from the repository root.
+- make the contract testable from the repository root;
+- provide stable public modules: `gts_rm.config`, `gts_rm.data`,
+  `gts_rm.models`, `gts_rm.training`, `gts_rm.evaluation` and
+  `gts_rm.artifacts`.
 
-CP21 does not:
+CP22 does not:
 
 - move CP20 modules;
 - change model behavior;
 - train a new productive model;
 - add residual, quantile, patching or SSL behavior.
+
+## Library Facade Contract
+
+The use case must import operational capabilities from `gts_rm`, not directly
+from the CP20 bundle.
+
+```text
+gts_rm.config      feature flags and stage configuration
+gts_rm.data        schema, scaler, split, dataset and temporal axis
+gts_rm.models      global model registry and builders
+gts_rm.training    trainer, HPO and curriculum APIs
+gts_rm.evaluation  validation, monitoring and comparison APIs
+gts_rm.artifacts   manager, local artifacts and S3 persistence APIs
+```
+
+The facade is wrapper-first. CP20 remains the implementation source until later
+checkpoints migrate internals module by module.
 
 ## Directory Contract
 

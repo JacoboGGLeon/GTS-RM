@@ -1,5 +1,6 @@
 ﻿from __future__ import annotations
 
+import importlib
 import json
 import sys
 from pathlib import Path
@@ -9,6 +10,15 @@ ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
+
+FACADE_MODULES = [
+    "gts_rm.config",
+    "gts_rm.data",
+    "gts_rm.models",
+    "gts_rm.training",
+    "gts_rm.evaluation",
+    "gts_rm.artifacts",
+]
 
 
 def test_gts_rm_exports_cp20_core() -> None:
@@ -48,22 +58,42 @@ def test_mac3_test_contract_loads_and_validates() -> None:
 
     contract = gts_rm.load_use_case("MAC3_TEST")
     assert contract.name == "MAC3_TEST"
-    assert contract.manifest["checkpoint"] == "CP21"
+    assert contract.manifest["checkpoint"] == "CP22"
     assert contract.contract_path.exists()
     assert contract.cp20_bundle_path == gts_rm.CP20_BUNDLE_ROOT
     assert contract.frozen_contract_path.exists()
 
 
 def test_mac3_test_configs_match_locked_cp20_contract() -> None:
-    manifest = json.loads((ROOT / "MAC3_TEST" / "manifest.json").read_text(encoding="utf-8"))
-    base = json.loads((ROOT / manifest["configs"]["base"]).read_text(encoding="utf-8"))
-    acceptance = json.loads((ROOT / manifest["configs"]["acceptance"]).read_text(encoding="utf-8"))
+    manifest = json.loads((ROOT / "MAC3_TEST" / "manifest.json").read_text(encoding="utf-8-sig"))
+    base = json.loads((ROOT / manifest["configs"]["base"]).read_text(encoding="utf-8-sig"))
+    acceptance = json.loads((ROOT / manifest["configs"]["acceptance"]).read_text(encoding="utf-8-sig"))
 
     assert manifest["kind"] == "use_case"
     assert manifest["release_first"] is True
     assert manifest["tutorials_deferred"] is True
+    assert manifest["library_facade"]["modules"] == FACADE_MODULES
+    assert base["facade_modules"] == FACADE_MODULES
     assert base["model_inputs"] == manifest["locked_cp20_contract"]["model_inputs"]
     assert base["supported_architectures"] == manifest["locked_cp20_contract"]["architectures"]
     assert base["output"] == manifest["locked_cp20_contract"]["output"]
     assert base["latent"] == manifest["locked_cp20_contract"]["latent"]
     assert acceptance["metrics"]["primary"] == "robust_macro_mase"
+    assert acceptance["release_gate"]["must_use_library_facade"] is True
+
+
+def test_cp22_facade_modules_import_and_expose_expected_symbols() -> None:
+    modules = {name: importlib.import_module(name) for name in FACADE_MODULES}
+
+    assert modules["gts_rm.config"].FinancialGPTStageConfig().flags.use_static_context is True
+    assert modules["gts_rm.data"].MODEL_INPUT_FIELDS == ("y_context", "x_history", "x_future", "x_static")
+    assert modules["gts_rm.data"].ContextScaler is not None
+    assert modules["gts_rm.models"].list_global_models() == ("mlp", "mlp_vae", "rnn", "rnn_bi")
+    assert modules["gts_rm.models"].GLOBAL_OUTPUT_FIELD == "y_pred"
+    assert modules["gts_rm.training"].GlobalTrainingConfig is not None
+    assert modules["gts_rm.training"].GlobalCurriculumConfig is not None
+    assert modules["gts_rm.evaluation"].GlobalValidationMetrics is not None
+    assert modules["gts_rm.evaluation"].FinancialGPTMonitorResult is not None
+    assert modules["gts_rm.artifacts"].GlobalManager is not None
+    assert modules["gts_rm.artifacts"].S3Location is not None
+

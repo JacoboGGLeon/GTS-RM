@@ -3,8 +3,8 @@
   "kind": "use_case",
   "library": "gts-rm",
   "baseline": "CP20",
-  "checkpoint": "CP21",
-  "status": "contract_locked",
+  "checkpoint": "CP22",
+  "status": "library_facade",
   "release_first": true,
   "tutorials_deferred": true,
   "entry_package": "gts_rm",
@@ -52,5 +52,17 @@
     "output": "y_pred",
     "latent": "history_embedding",
     "architectures": ["mlp", "mlp_vae", "rnn", "rnn_bi"]
+  },
+  "library_facade": {
+    "modules": [
+      "gts_rm.config",
+      "gts_rm.data",
+      "gts_rm.models",
+      "gts_rm.training",
+      "gts_rm.evaluation",
+      "gts_rm.artifacts"
+    ],
+    "implementation_source": "liquidez_2026_cp20_prework_financial_gpt",
+    "migration_mode": "wrapper_first"
   }
 }
