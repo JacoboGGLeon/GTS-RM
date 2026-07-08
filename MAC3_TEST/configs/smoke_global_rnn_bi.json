@@ -1,6 +1,6 @@
 {
   "name": "smoke_global_rnn_bi",
-  "checkpoint": "CP23",
+  "checkpoint": "CP24",
   "seed": 7,
   "batch_size": 2,
   "architecture": "rnn_bi",

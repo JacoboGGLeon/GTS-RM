@@ -43,7 +43,17 @@ Status: complete.
 - Define release acceptance metrics.
 - Produce reproducible smoke workflow evidence under `reports/` and `runs/`.
 
-## Phase 6: Tutorials
+## Phase 6: Config Migration
+
+Status: complete.
+
+- Move stage, training, candidate, notebook and smoke defaults into
+  `MAC3_TEST/configs`.
+- Add `gts_rm.config.load_mac3_config_bundle`.
+- Validate migrated configs from tests and smoke workflows.
+- Keep CP20 behavior unchanged.
+
+## Phase 7: Tutorials
 
 Status: deferred.
 

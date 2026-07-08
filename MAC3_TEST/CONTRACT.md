@@ -1,39 +1,58 @@
-# CP23 - MAC3_TEST Smoke Workflow Contract
+# CP24 - MAC3_TEST Config Migration Contract
 
 `MAC3_TEST` is the release-first use case for GTS-RM. It is not a tutorial.
-The CP20 bundle remains the source of truth while the operational workflow
-migrates into this directory.
+The CP20 bundle remains the implementation source while operational
+configuration moves into `MAC3_TEST/configs` and is loaded through `gts_rm.config`.
 
 ## Scope
 
-CP21 defined the case boundary. CP22 added the library facade. CP23 adds the
-executable smoke workflow suite for the four locked CP20 global architectures:
+CP21 defined the use-case boundary. CP22 added the library facade. CP23 added
+smoke workflows for the four locked CP20 global architectures. CP24 makes
+configuration a library-facing contract:
 
-- declare the use-case inputs, outputs and acceptance metrics;
-- create stable directories for configs, data, artifacts, reports, runs and
-  optional notebooks;
-- keep all CP20 implementation files in place;
-- expose the CP20 core through `gts_rm` wrappers;
-- make the contract testable from the repository root;
-- provide stable public modules: `gts_rm.config`, `gts_rm.data`,
-  `gts_rm.models`, `gts_rm.training`, `gts_rm.evaluation` and
-  `gts_rm.artifacts`;
-- run one smoke workflow per architecture: `mlp`, `mlp_vae`, `rnn`, `rnn_bi`;
-- run the aggregate suite through `MAC3_TEST.workflows.smoke_all_global_models`;
-- write smoke evidence under `MAC3_TEST/reports` and `MAC3_TEST/runs`.
+- keep CP20 implementation files in place;
+- keep CP20 model behavior unchanged;
+- expose config loading through `gts_rm.config`;
+- keep `MAC3_TEST/configs` as the source of truth for use-case execution;
+- validate stage flags, training config, candidate configs, notebook execution
+  configs and smoke configs from repository-root tests;
+- keep smoke workflows facade-only through `gts_rm.config` and `gts_rm.models`.
 
-CP23 does not:
+CP24 does not:
 
 - move CP20 modules;
-- change model behavior;
-- train a new productive model;
+- train a productive model;
+- require real MAC3 input data;
 - add residual, quantile, patching or SSL behavior.
+
+## Migrated Configs
+
+```text
+MAC3_TEST/configs/base_cp20.json          CP20 locked contract summary
+MAC3_TEST/configs/stage_cp20.json         FinancialGPTStageConfig flags
+MAC3_TEST/configs/training_smoke.json     GlobalTrainingConfig smoke defaults
+MAC3_TEST/configs/candidates_smoke.json   GlobalCandidateConfig per architecture
+MAC3_TEST/configs/notebooks_mac3.json     GlobalNotebookConfig per architecture
+MAC3_TEST/configs/smoke_global_*.json     executable smoke configs
+MAC3_TEST/configs/acceptance.json         release evidence gates
+```
+
+The public loader is:
+
+```python
+from gts_rm import config
+
+bundle = config.load_mac3_config_bundle()
+bundle.validate()
+```
+
+The bundle must cover exactly `mlp`, `mlp_vae`, `rnn` and `rnn_bi`.
 
 ## Smoke Workflow Contract
 
-The CP23 workflow suite must:
+The CP24 workflow suite must:
 
-- load architecture-specific configs from `MAC3_TEST/configs/smoke_global_*.json`;
+- load smoke configs through `gts_rm.config`;
 - build each model through `gts_rm.models.build_global_model`;
 - cover exactly `mlp`, `mlp_vae`, `rnn` and `rnn_bi`;
 - use synthetic tensors only;
@@ -48,7 +67,7 @@ The use case must import operational capabilities from `gts_rm`, not directly
 from the CP20 bundle.
 
 ```text
-gts_rm.config      feature flags and stage configuration
+gts_rm.config      config loading, feature flags and stage configuration
 gts_rm.data        schema, scaler, split, dataset and temporal axis
 gts_rm.models      global model registry and builders
 gts_rm.training    trainer, HPO and curriculum APIs
@@ -58,43 +77,6 @@ gts_rm.artifacts   manager, local artifacts and S3 persistence APIs
 
 The facade is wrapper-first. CP20 remains the implementation source until later
 checkpoints migrate internals module by module.
-
-## Directory Contract
-
-```text
-MAC3_TEST/
-├─ configs/
-├─ data/
-├─ artifacts/
-├─ reports/
-├─ runs/
-├─ notebooks/
-├─ workflows/
-├─ CONTRACT.md
-├─ README.md
-├─ RELEASE_PLAN.md
-└─ manifest.json
-```
-
-## Input Contract
-
-The canonical panel must follow the CP20 global-long schema. Required columns
-come from `global_contracts.GLOBAL_LONG_REQUIRED_COLUMNS`.
-
-Calendar/exogenous features must be aligned causally through the CP20 temporal
-axis and dataset factory. Future-known calendar features are allowed; future
-target leakage is not.
-
-## Output Contract
-
-The use case produces:
-
-- model artifacts under `MAC3_TEST/artifacts`;
-- run records under `MAC3_TEST/runs`;
-- evaluation reports under `MAC3_TEST/reports`.
-
-Until a later checkpoint changes the artifact schema, persisted model behavior
-continues to follow the CP20 manager/save/load contract.
 
 ## Model Contract
 

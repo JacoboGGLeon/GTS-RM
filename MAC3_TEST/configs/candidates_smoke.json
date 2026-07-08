@@ -1,0 +1,142 @@
+{
+  "name": "candidates_smoke",
+  "checkpoint": "CP24",
+  "baseline": "CP20",
+  "candidates": {
+    "mlp": {
+      "window_size": 5,
+      "model_config": {
+        "latent_dim": 8,
+        "enc_hidden_size": 16,
+        "enc_num_layers": 1,
+        "dec_hidden_size": 16,
+        "dec_num_layers": 1,
+        "use_auxiliary_autoencoder": false
+      },
+      "training_config": {
+        "epochs": 2,
+        "batch_size": 8,
+        "learning_rate": 0.001,
+        "weight_decay": 0.00001,
+        "loss": "huber",
+        "huber_delta": 1.0,
+        "patience": 2,
+        "min_delta": 0.00001,
+        "grad_clip_norm": 1.0,
+        "scheduler_patience": 1,
+        "scheduler_factor": 0.5,
+        "min_learning_rate": 0.000001,
+        "samples_per_epoch": 16,
+        "num_workers": 0,
+        "seed": 7,
+        "device": "auto",
+        "selection_metric": "robust_macro_mase",
+        "nonfinite_max_retries": 3,
+        "nonfinite_lr_factor": 0.2,
+        "use_auxiliary_autoencoder": false
+      }
+    },
+    "mlp_vae": {
+      "window_size": 5,
+      "model_config": {
+        "latent_dim": 8,
+        "enc_hidden_size": 16,
+        "enc_num_layers": 1,
+        "dec_hidden_size": 16,
+        "dec_num_layers": 1,
+        "beta_kl": 0.1,
+        "use_auxiliary_autoencoder": false
+      },
+      "training_config": {
+        "epochs": 2,
+        "batch_size": 8,
+        "learning_rate": 0.001,
+        "weight_decay": 0.00001,
+        "loss": "huber",
+        "huber_delta": 1.0,
+        "patience": 2,
+        "min_delta": 0.00001,
+        "grad_clip_norm": 1.0,
+        "scheduler_patience": 1,
+        "scheduler_factor": 0.5,
+        "min_learning_rate": 0.000001,
+        "samples_per_epoch": 16,
+        "num_workers": 0,
+        "seed": 7,
+        "device": "auto",
+        "selection_metric": "robust_macro_mase",
+        "nonfinite_max_retries": 3,
+        "nonfinite_lr_factor": 0.2,
+        "use_auxiliary_autoencoder": false
+      }
+    },
+    "rnn": {
+      "window_size": 5,
+      "model_config": {
+        "latent_dim": 8,
+        "rnn_hidden_size": 16,
+        "rnn_num_layers": 1,
+        "decoder_num_layers": 1,
+        "dec_hidden_size": 16,
+        "dec_num_layers": 1,
+        "use_auxiliary_autoencoder": false
+      },
+      "training_config": {
+        "epochs": 2,
+        "batch_size": 8,
+        "learning_rate": 0.001,
+        "weight_decay": 0.00001,
+        "loss": "huber",
+        "huber_delta": 1.0,
+        "patience": 2,
+        "min_delta": 0.00001,
+        "grad_clip_norm": 1.0,
+        "scheduler_patience": 1,
+        "scheduler_factor": 0.5,
+        "min_learning_rate": 0.000001,
+        "samples_per_epoch": 16,
+        "num_workers": 0,
+        "seed": 7,
+        "device": "auto",
+        "selection_metric": "robust_macro_mase",
+        "nonfinite_max_retries": 3,
+        "nonfinite_lr_factor": 0.2,
+        "use_auxiliary_autoencoder": false
+      }
+    },
+    "rnn_bi": {
+      "window_size": 5,
+      "model_config": {
+        "latent_dim": 8,
+        "rnn_hidden_size": 16,
+        "rnn_num_layers": 1,
+        "decoder_num_layers": 1,
+        "dec_hidden_size": 16,
+        "dec_num_layers": 1,
+        "use_auxiliary_autoencoder": false
+      },
+      "training_config": {
+        "epochs": 2,
+        "batch_size": 8,
+        "learning_rate": 0.001,
+        "weight_decay": 0.00001,
+        "loss": "huber",
+        "huber_delta": 1.0,
+        "patience": 2,
+        "min_delta": 0.00001,
+        "grad_clip_norm": 1.0,
+        "scheduler_patience": 1,
+        "scheduler_factor": 0.5,
+        "min_learning_rate": 0.000001,
+        "samples_per_epoch": 16,
+        "num_workers": 0,
+        "seed": 7,
+        "device": "auto",
+        "selection_metric": "robust_macro_mase",
+        "nonfinite_max_retries": 3,
+        "nonfinite_lr_factor": 0.2,
+        "use_auxiliary_autoencoder": false
+      }
+    }
+  }
+}

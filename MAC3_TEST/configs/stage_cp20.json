@@ -1,0 +1,46 @@
+{
+  "name": "stage_cp20",
+  "checkpoint": "CP24",
+  "baseline": "CP20",
+  "stage": {
+    "flags": {
+      "use_causal_scaler": true,
+      "use_observed_mask": false,
+      "use_context_mask": false,
+      "use_patch_tokenizer": false,
+      "use_calendar_encoder": true,
+      "use_calendar_future": true,
+      "use_static_context": true,
+      "use_local_residual_decoder": false,
+      "use_quantile_head": false,
+      "use_self_supervised_pretraining": false,
+      "use_auxiliary_autoencoder": true
+    },
+    "patch_tokenizer": {
+      "enabled": false,
+      "patch_size": 5,
+      "patch_stride": 5,
+      "patch_dim": 32
+    },
+    "local_residual": {
+      "enabled": false,
+      "hidden_dim": 32,
+      "num_layers": 1,
+      "dropout": 0.0,
+      "residual_lambda": 0.01,
+      "global_aux_alpha": 0.2
+    },
+    "quantile_head": {
+      "enabled": false,
+      "quantiles": [0.1, 0.5, 0.9],
+      "quantile_weight": 1.0,
+      "crossing_penalty": 0.01
+    },
+    "self_supervised": {
+      "enabled": false,
+      "task": "masked_reconstruction",
+      "mask_ratio": 0.15,
+      "mask_strategy": "random"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 {
   "name": "base_cp20",
-  "checkpoint": "CP22",
+  "checkpoint": "CP24",
   "baseline": "CP20",
   "architecture_family": "global",
   "supported_architectures": ["mlp", "mlp_vae", "rnn", "rnn_bi"],
@@ -8,6 +8,18 @@
   "output": "y_pred",
   "latent": "history_embedding",
   "primary_metric": "robust_macro_mase",
+  "config_source_of_truth": "MAC3_TEST/configs",
+  "config_loader": "gts_rm.config.load_mac3_config_bundle",
+  "migrated_configs": [
+    "stage_cp20.json",
+    "training_smoke.json",
+    "candidates_smoke.json",
+    "notebooks_mac3.json",
+    "smoke_global_mlp.json",
+    "smoke_global_mlp_vae.json",
+    "smoke_global_rnn.json",
+    "smoke_global_rnn_bi.json"
+  ],
   "facade_modules": [
     "gts_rm.config",
     "gts_rm.data",

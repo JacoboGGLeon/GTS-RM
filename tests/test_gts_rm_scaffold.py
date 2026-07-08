@@ -20,6 +20,7 @@ FACADE_MODULES = [
     "gts_rm.artifacts",
 ]
 SUPPORTED_ARCHITECTURES = ["mlp", "mlp_vae", "rnn", "rnn_bi"]
+SMOKE_FACADE_MODULES = ["gts_rm.config", "gts_rm.models"]
 SMOKE_WORKFLOWS = {
     "mlp": "smoke_global_mlp",
     "mlp_vae": "smoke_global_mlp_vae",
@@ -65,12 +66,14 @@ def test_mac3_test_contract_loads_and_validates() -> None:
 
     contract = gts_rm.load_use_case("MAC3_TEST")
     assert contract.name == "MAC3_TEST"
-    assert contract.manifest["checkpoint"] == "CP23"
+    assert contract.manifest["checkpoint"] == "CP24"
+    assert contract.manifest["status"] == "config_migration"
     assert contract.contract_path.exists()
     assert contract.cp20_bundle_path == gts_rm.CP20_BUNDLE_ROOT
     assert contract.frozen_contract_path.exists()
     assert set(SMOKE_WORKFLOWS.values()).issubset(contract.manifest["workflows"])
     assert "smoke_all_global_models" in contract.manifest["workflows"]
+    assert contract.manifest["config_migration"]["loader"] == "gts_rm.config.load_mac3_config_bundle"
 
 
 def test_mac3_test_configs_match_locked_cp20_contract() -> None:
@@ -86,25 +89,34 @@ def test_mac3_test_configs_match_locked_cp20_contract() -> None:
     assert manifest["release_first"] is True
     assert manifest["tutorials_deferred"] is True
     assert manifest["library_facade"]["modules"] == FACADE_MODULES
+    assert manifest["configs"]["stage"] == "MAC3_TEST/configs/stage_cp20.json"
+    assert manifest["configs"]["training"] == "MAC3_TEST/configs/training_smoke.json"
+    assert manifest["configs"]["candidates"] == "MAC3_TEST/configs/candidates_smoke.json"
+    assert manifest["configs"]["notebooks"] == "MAC3_TEST/configs/notebooks_mac3.json"
+    assert base["checkpoint"] == "CP24"
     assert base["facade_modules"] == FACADE_MODULES
     assert base["model_inputs"] == manifest["locked_cp20_contract"]["model_inputs"]
     assert base["supported_architectures"] == manifest["locked_cp20_contract"]["architectures"]
     assert base["output"] == manifest["locked_cp20_contract"]["output"]
     assert base["latent"] == manifest["locked_cp20_contract"]["latent"]
+    assert base["config_loader"] == "gts_rm.config.load_mac3_config_bundle"
     assert list(smokes) == SUPPORTED_ARCHITECTURES
     for architecture, smoke in smokes.items():
-        assert smoke["checkpoint"] == "CP23"
+        assert smoke["checkpoint"] == "CP24"
         assert smoke["architecture"] == architecture
         assert smoke["expected_output_shape"] == [2, 3, 1]
+    assert acceptance["checkpoint"] == "CP24"
     assert acceptance["metrics"]["primary"] == "robust_macro_mase"
     assert acceptance["release_gate"]["must_use_library_facade"] is True
     assert acceptance["release_gate"]["must_run_smoke_workflow"] is True
+    assert acceptance["release_gate"]["must_load_migrated_configs"] is True
 
 
 def test_cp22_facade_modules_import_and_expose_expected_symbols() -> None:
     modules = {name: importlib.import_module(name) for name in FACADE_MODULES}
 
     assert modules["gts_rm.config"].FinancialGPTStageConfig().flags.use_static_context is True
+    assert modules["gts_rm.config"].CONFIG_CHECKPOINT == "CP24"
     assert modules["gts_rm.data"].MODEL_INPUT_FIELDS == ("y_context", "x_history", "x_future", "x_static")
     assert modules["gts_rm.data"].ContextScaler is not None
     assert modules["gts_rm.models"].list_global_models() == tuple(SUPPORTED_ARCHITECTURES)
@@ -117,6 +129,24 @@ def test_cp22_facade_modules_import_and_expose_expected_symbols() -> None:
     assert modules["gts_rm.artifacts"].S3Location is not None
 
 
+def test_cp24_migrated_config_bundle_loads_and_validates() -> None:
+    from gts_rm import config
+
+    bundle = config.load_mac3_config_bundle()
+
+    assert tuple(bundle.candidates) == tuple(SUPPORTED_ARCHITECTURES)
+    assert tuple(bundle.notebooks) == tuple(SUPPORTED_ARCHITECTURES)
+    assert tuple(bundle.smokes) == tuple(SUPPORTED_ARCHITECTURES)
+    assert bundle.stage.flags.use_causal_scaler is True
+    assert bundle.stage.flags.use_patch_tokenizer is False
+    assert bundle.training.selection_metric == "robust_macro_mase"
+    for architecture in SUPPORTED_ARCHITECTURES:
+        assert bundle.candidates[architecture].window_size == bundle.smokes[architecture]["window_size"]
+        assert bundle.candidates[architecture].model_config == bundle.smokes[architecture]["model_config"]
+        assert bundle.notebooks[architecture].architecture == architecture
+        assert bundle.notebooks[architecture].artifact_root == f"MAC3_TEST/artifacts/{architecture}"
+
+
 def test_cp23_smoke_workflows_run_with_facade(tmp_path) -> None:
     from MAC3_TEST.workflows.smoke_all_global_models import run_smoke_suite
 
@@ -126,17 +156,17 @@ def test_cp23_smoke_workflows_run_with_facade(tmp_path) -> None:
     for architecture, report in reports.items():
         name = SMOKE_WORKFLOWS[architecture]
         assert report["ok"] is True
-        assert report["checkpoint"] == "CP23"
+        assert report["checkpoint"] == "CP24"
         assert report["architecture"] == architecture
         assert report["actual_output_shape"] == [2, 3, 1]
         assert report["finite_prediction"] is True
         assert report["finite_history_embedding"] is True
-        assert report["facade_modules"] == ["gts_rm.models"]
+        assert report["facade_modules"] == SMOKE_FACADE_MODULES
         assert (tmp_path / "reports" / f"{name}.json").exists()
         assert (tmp_path / "runs" / f"{name}_run.json").exists()
 
 
-def test_cp23_smoke_workflows_do_not_import_cp20_modules_directly() -> None:
+def test_cp24_smoke_workflows_do_not_import_cp20_modules_directly() -> None:
     workflow_paths = [
         ROOT / "MAC3_TEST" / "workflows" / "_global_smoke.py",
         ROOT / "MAC3_TEST" / "workflows" / "smoke_global_mlp.py",

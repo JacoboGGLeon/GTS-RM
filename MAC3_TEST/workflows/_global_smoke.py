@@ -13,7 +13,7 @@ if str(SRC_ROOT) not in sys.path:
 
 import torch
 
-from gts_rm import MAC3_TEST_ROOT, models
+from gts_rm import MAC3_TEST_ROOT, config, models
 
 
 def config_path_for(architecture: str) -> Path:
@@ -21,16 +21,12 @@ def config_path_for(architecture: str) -> Path:
     return MAC3_TEST_ROOT / "configs" / f"smoke_global_{key}.json"
 
 
-def _load_config(config_path: Path) -> dict[str, Any]:
-    return json.loads(config_path.read_text(encoding="utf-8-sig"))
-
-
-def _synthetic_batch(config: dict[str, Any]) -> dict[str, torch.Tensor]:
-    batch_size = int(config.get("batch_size", 2))
-    window_size = int(config["window_size"])
-    horizon = int(config["horizon"])
-    exogenous_dim = int(config["exogenous_dim"])
-    static_dim = int(config["static_dim"])
+def _synthetic_batch(config_payload: dict[str, Any]) -> dict[str, torch.Tensor]:
+    batch_size = int(config_payload.get("batch_size", 2))
+    window_size = int(config_payload["window_size"])
+    horizon = int(config_payload["horizon"])
+    exogenous_dim = int(config_payload["exogenous_dim"])
+    static_dim = int(config_payload["static_dim"])
 
     y_context = torch.linspace(-1.0, 1.0, steps=batch_size * window_size).reshape(
         batch_size, window_size, 1
@@ -60,45 +56,49 @@ def run_global_smoke(
     config_path: str | Path | None = None,
     output_root: str | Path | None = None,
 ) -> dict[str, Any]:
-    resolved_config_path = Path(config_path) if config_path is not None else config_path_for(architecture)
-    config = _load_config(resolved_config_path)
-    if config["architecture"] != architecture:
+    if config_path is None:
+        config_payload = config.load_smoke_config(architecture)
+        resolved_config_path = config_path_for(architecture)
+    else:
+        config_payload = config.load_json_config(config_path)
+        resolved_config_path = Path(config_path)
+    if config_payload["architecture"] != architecture:
         raise ValueError(
             f"Smoke config architecture mismatch: expected {architecture!r}, "
-            f"got {config['architecture']!r}"
+            f"got {config_payload['architecture']!r}"
         )
 
-    torch.manual_seed(int(config.get("seed", 7)))
+    torch.manual_seed(int(config_payload.get("seed", 7)))
     model = models.build_global_model(
         architecture,
-        config["model_config"],
-        window_size=int(config["window_size"]),
-        horizon=int(config["horizon"]),
-        exogenous_dim=int(config["exogenous_dim"]),
-        static_dim=int(config["static_dim"]),
+        config_payload["model_config"],
+        window_size=int(config_payload["window_size"]),
+        horizon=int(config_payload["horizon"]),
+        exogenous_dim=int(config_payload["exogenous_dim"]),
+        static_dim=int(config_payload["static_dim"]),
     )
     model.eval()
 
-    inputs = _synthetic_batch(config)
+    inputs = _synthetic_batch(config_payload)
     with torch.no_grad():
         output = model(**inputs)
 
     prediction = output[models.GLOBAL_OUTPUT_FIELD]
     history_embedding = output["extras"][models.GLOBAL_LATENT_FIELD]
-    expected_shape = tuple(int(value) for value in config["expected_output_shape"])
+    expected_shape = tuple(int(value) for value in config_payload["expected_output_shape"])
     actual_shape = tuple(int(value) for value in prediction.shape)
     finite_prediction = bool(torch.isfinite(prediction).all().item())
     finite_embedding = bool(torch.isfinite(history_embedding).all().item())
     ok = actual_shape == expected_shape and finite_prediction and finite_embedding
 
     now = datetime.now(timezone.utc).isoformat()
-    name = str(config["name"])
+    name = str(config_payload["name"])
     root = Path(output_root) if output_root is not None else MAC3_TEST_ROOT
     report_path = root / "reports" / f"{name}.json"
     run_record_path = root / "runs" / f"{name}_run.json"
     report = {
         "name": name,
-        "checkpoint": "CP23",
+        "checkpoint": config_payload.get("checkpoint", "CP24"),
         "ok": ok,
         "created_at_utc": now,
         "architecture": architecture,
@@ -107,11 +107,11 @@ def run_global_smoke(
         "history_embedding_shape": [int(value) for value in history_embedding.shape],
         "finite_prediction": finite_prediction,
         "finite_history_embedding": finite_embedding,
-        "facade_modules": ["gts_rm.models"],
+        "facade_modules": ["gts_rm.config", "gts_rm.models"],
     }
     run_record = {
         "name": name,
-        "checkpoint": "CP23",
+        "checkpoint": config_payload.get("checkpoint", "CP24"),
         "created_at_utc": now,
         "config_path": str(resolved_config_path),
         "report_path": str(report_path),

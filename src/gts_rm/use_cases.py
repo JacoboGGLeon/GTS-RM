@@ -16,6 +16,7 @@ FACADE_MODULES = [
     "gts_rm.artifacts",
 ]
 SUPPORTED_ARCHITECTURES = ["mlp", "mlp_vae", "rnn", "rnn_bi"]
+SMOKE_FACADE_MODULES = ["gts_rm.config", "gts_rm.models"]
 
 
 @dataclass(frozen=True)
@@ -95,9 +96,14 @@ class UseCaseContract:
         suite = workflows.get("smoke_all_global_models") or {}
         if suite.get("architectures") != SUPPORTED_ARCHITECTURES:
             raise ValueError("smoke_all_global_models must cover all CP20 architectures")
+        migration = self.manifest.get("config_migration") or {}
+        if migration.get("checkpoint") != "CP24":
+            raise ValueError("config_migration checkpoint must be CP24")
+        if migration.get("loader") != "gts_rm.config.load_mac3_config_bundle":
+            raise ValueError("config_migration loader must be gts_rm.config.load_mac3_config_bundle")
         for workflow in workflows.values():
-            if workflow.get("uses_facade_modules") != ["gts_rm.models"]:
-                raise ValueError("smoke workflows must use the gts_rm.models facade")
+            if workflow.get("uses_facade_modules") != SMOKE_FACADE_MODULES:
+                raise ValueError("smoke workflows must use the gts_rm.config and gts_rm.models facades")
 
         missing = [path for path in self.required_paths() if not path.exists()]
         if missing:
@@ -118,4 +124,10 @@ def load_use_case(name: str = "MAC3_TEST") -> UseCaseContract:
     return contract
 
 
-__all__ = ["FACADE_MODULES", "SUPPORTED_ARCHITECTURES", "UseCaseContract", "load_use_case"]
+__all__ = [
+    "FACADE_MODULES",
+    "SMOKE_FACADE_MODULES",
+    "SUPPORTED_ARCHITECTURES",
+    "UseCaseContract",
+    "load_use_case",
+]

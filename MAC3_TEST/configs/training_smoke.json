@@ -1,0 +1,27 @@
+{
+  "name": "training_smoke",
+  "checkpoint": "CP24",
+  "baseline": "CP20",
+  "training_config": {
+    "epochs": 2,
+    "batch_size": 8,
+    "learning_rate": 0.001,
+    "weight_decay": 0.00001,
+    "loss": "huber",
+    "huber_delta": 1.0,
+    "patience": 2,
+    "min_delta": 0.00001,
+    "grad_clip_norm": 1.0,
+    "scheduler_patience": 1,
+    "scheduler_factor": 0.5,
+    "min_learning_rate": 0.000001,
+    "samples_per_epoch": 16,
+    "num_workers": 0,
+    "seed": 7,
+    "device": "auto",
+    "selection_metric": "robust_macro_mase",
+    "nonfinite_max_retries": 3,
+    "nonfinite_lr_factor": 0.2,
+    "use_auxiliary_autoencoder": false
+  }
+}

@@ -34,12 +34,12 @@ The package entry point is:
 import gts_rm
 ```
 
-## CP23 Contract
+## CP24 Contract
 
 CP21 locked this directory as the operational boundary. CP22 added a stable
-library facade over CP20. CP23 adds the executable smoke workflow suite for the
-four locked global model architectures. See `CONTRACT.md` and `manifest.json`
-for the machine-readable and human-readable contracts.
+library facade over CP20. CP23 added executable smoke workflows for the four
+locked global model architectures. CP24 migrates operational configuration into
+`MAC3_TEST/configs` and validates it through `gts_rm.config`.
 
 The current directory layout is:
 
@@ -59,7 +59,15 @@ The public facade is:
 from gts_rm import data, models, training, evaluation, artifacts, config
 ```
 
-## CP23 Smoke
+Load the migrated config bundle with:
+
+```python
+from gts_rm import config
+
+bundle = config.load_mac3_config_bundle()
+```
+
+## Smoke Suite
 
 Run the full smoke suite from the repository root:
 
@@ -76,5 +84,6 @@ python -m MAC3_TEST.workflows.smoke_global_rnn
 python -m MAC3_TEST.workflows.smoke_global_rnn_bi
 ```
 
-Each workflow builds the configured global model through `gts_rm.models`, runs a
-synthetic forward pass, and writes JSON evidence under `reports/` and `runs/`.
+Each workflow loads config through `gts_rm.config`, builds the configured global
+model through `gts_rm.models`, runs a synthetic forward pass, and writes JSON
+evidence under `reports/` and `runs/`.

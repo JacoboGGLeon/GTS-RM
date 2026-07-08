@@ -1,13 +1,14 @@
 {
   "name": "mac3_test_acceptance",
-  "checkpoint": "CP23",
+  "checkpoint": "CP24",
   "release_gate": {
     "baseline": "CP20",
     "must_pass_tests": true,
     "must_preserve_cp20_contract": true,
     "must_run_from_repo_root": true,
     "must_use_library_facade": true,
-    "must_run_smoke_workflow": true
+    "must_run_smoke_workflow": true,
+    "must_load_migrated_configs": true
   },
   "metrics": {
     "primary": "robust_macro_mase",
@@ -23,6 +24,7 @@
     "MAC3_TEST manifest validation",
     "gts_rm import validation",
     "gts_rm facade validation",
+    "gts_rm config bundle validation",
     "MAC3_TEST smoke workflow validation"
   ]
 }

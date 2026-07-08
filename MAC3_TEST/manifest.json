@@ -3,8 +3,8 @@
     "kind":  "use_case",
     "library":  "gts-rm",
     "baseline":  "CP20",
-    "checkpoint":  "CP23",
-    "status":  "smoke_workflow",
+    "checkpoint":  "CP24",
+    "status":  "config_migration",
     "release_first":  true,
     "tutorials_deferred":  true,
     "entry_package":  "gts_rm",
@@ -20,7 +20,11 @@
                                    "mlp_vae":  "MAC3_TEST/configs/smoke_global_mlp_vae.json",
                                    "rnn":  "MAC3_TEST/configs/smoke_global_rnn.json",
                                    "rnn_bi":  "MAC3_TEST/configs/smoke_global_rnn_bi.json"
-                               }
+                               },
+                    "stage":  "MAC3_TEST/configs/stage_cp20.json",
+                    "training":  "MAC3_TEST/configs/training_smoke.json",
+                    "candidates":  "MAC3_TEST/configs/candidates_smoke.json",
+                    "notebooks":  "MAC3_TEST/configs/notebooks_mac3.json"
                 },
     "directories":  {
                         "configs":  "MAC3_TEST/configs",
@@ -89,6 +93,7 @@
                                                "run_record":  "MAC3_TEST/runs/smoke_global_mlp_run.json",
                                                "architecture":  "mlp",
                                                "uses_facade_modules":  [
+                                                                           "gts_rm.config",
                                                                            "gts_rm.models"
                                                                        ]
                                            },
@@ -99,6 +104,7 @@
                                                    "run_record":  "MAC3_TEST/runs/smoke_global_mlp_vae_run.json",
                                                    "architecture":  "mlp_vae",
                                                    "uses_facade_modules":  [
+                                                                               "gts_rm.config",
                                                                                "gts_rm.models"
                                                                            ]
                                                },
@@ -109,6 +115,7 @@
                                                "run_record":  "MAC3_TEST/runs/smoke_global_rnn_run.json",
                                                "architecture":  "rnn",
                                                "uses_facade_modules":  [
+                                                                           "gts_rm.config",
                                                                            "gts_rm.models"
                                                                        ]
                                            },
@@ -119,6 +126,7 @@
                                                   "run_record":  "MAC3_TEST/runs/smoke_global_rnn_bi_run.json",
                                                   "architecture":  "rnn_bi",
                                                   "uses_facade_modules":  [
+                                                                              "gts_rm.config",
                                                                               "gts_rm.models"
                                                                           ]
                                               },
@@ -137,8 +145,27 @@
                                                                             "rnn_bi"
                                                                         ],
                                                       "uses_facade_modules":  [
+                                                                                  "gts_rm.config",
                                                                                   "gts_rm.models"
                                                                               ]
                                                   }
-                  }
+                  },
+    "config_migration":  {
+                             "checkpoint":  "CP24",
+                             "source_of_truth":  "MAC3_TEST/configs",
+                             "loader":  "gts_rm.config.load_mac3_config_bundle",
+                             "migrated_config_types":  [
+                                                           "stage_flags",
+                                                           "training",
+                                                           "candidates",
+                                                           "notebook_execution",
+                                                           "smoke"
+                                                       ],
+                             "supported_architectures":  [
+                                                             "mlp",
+                                                             "mlp_vae",
+                                                             "rnn",
+                                                             "rnn_bi"
+                                                         ]
+                         }
 }
