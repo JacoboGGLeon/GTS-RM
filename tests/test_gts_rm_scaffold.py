@@ -58,16 +58,18 @@ def test_mac3_test_contract_loads_and_validates() -> None:
 
     contract = gts_rm.load_use_case("MAC3_TEST")
     assert contract.name == "MAC3_TEST"
-    assert contract.manifest["checkpoint"] == "CP22"
+    assert contract.manifest["checkpoint"] == "CP23"
     assert contract.contract_path.exists()
     assert contract.cp20_bundle_path == gts_rm.CP20_BUNDLE_ROOT
     assert contract.frozen_contract_path.exists()
+    assert "smoke_global_mlp" in contract.manifest["workflows"]
 
 
 def test_mac3_test_configs_match_locked_cp20_contract() -> None:
     manifest = json.loads((ROOT / "MAC3_TEST" / "manifest.json").read_text(encoding="utf-8-sig"))
     base = json.loads((ROOT / manifest["configs"]["base"]).read_text(encoding="utf-8-sig"))
     acceptance = json.loads((ROOT / manifest["configs"]["acceptance"]).read_text(encoding="utf-8-sig"))
+    smoke = json.loads((ROOT / manifest["configs"]["smoke"]).read_text(encoding="utf-8-sig"))
 
     assert manifest["kind"] == "use_case"
     assert manifest["release_first"] is True
@@ -78,8 +80,10 @@ def test_mac3_test_configs_match_locked_cp20_contract() -> None:
     assert base["supported_architectures"] == manifest["locked_cp20_contract"]["architectures"]
     assert base["output"] == manifest["locked_cp20_contract"]["output"]
     assert base["latent"] == manifest["locked_cp20_contract"]["latent"]
+    assert smoke["checkpoint"] == "CP23"
     assert acceptance["metrics"]["primary"] == "robust_macro_mase"
     assert acceptance["release_gate"]["must_use_library_facade"] is True
+    assert acceptance["release_gate"]["must_run_smoke_workflow"] is True
 
 
 def test_cp22_facade_modules_import_and_expose_expected_symbols() -> None:
@@ -97,3 +101,29 @@ def test_cp22_facade_modules_import_and_expose_expected_symbols() -> None:
     assert modules["gts_rm.artifacts"].GlobalManager is not None
     assert modules["gts_rm.artifacts"].S3Location is not None
 
+
+def test_cp23_smoke_workflow_runs_with_facade(tmp_path) -> None:
+    from MAC3_TEST.workflows.smoke_global_mlp import run_smoke
+
+    report = run_smoke(output_root=tmp_path)
+
+    assert report["ok"] is True
+    assert report["checkpoint"] == "CP23"
+    assert report["actual_output_shape"] == [2, 3, 1]
+    assert report["finite_prediction"] is True
+    assert report["finite_history_embedding"] is True
+    assert report["facade_modules"] == ["gts_rm.models"]
+    assert (tmp_path / "reports" / "smoke_global_mlp.json").exists()
+    assert (tmp_path / "runs" / "smoke_global_mlp_run.json").exists()
+
+
+def test_cp23_smoke_workflow_does_not_import_cp20_modules_directly() -> None:
+    source = (ROOT / "MAC3_TEST" / "workflows" / "smoke_global_mlp.py").read_text(encoding="utf-8")
+    forbidden_imports = [
+        "from global_",
+        "import global_",
+        "from financial_gpt_",
+        "import financial_gpt_",
+    ]
+    for forbidden in forbidden_imports:
+        assert forbidden not in source

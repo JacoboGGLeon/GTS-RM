@@ -3,8 +3,8 @@
   "kind": "use_case",
   "library": "gts-rm",
   "baseline": "CP20",
-  "checkpoint": "CP22",
-  "status": "library_facade",
+  "checkpoint": "CP23",
+  "status": "smoke_workflow",
   "release_first": true,
   "tutorials_deferred": true,
   "entry_package": "gts_rm",
@@ -64,5 +64,14 @@
     ],
     "implementation_source": "liquidez_2026_cp20_prework_financial_gpt",
     "migration_mode": "wrapper_first"
+  },
+  "workflows": {
+    "smoke_global_mlp": {
+      "path": "MAC3_TEST/workflows/smoke_global_mlp.py",
+      "config": "MAC3_TEST/configs/smoke_global_mlp.json",
+      "report": "MAC3_TEST/reports/smoke_global_mlp.json",
+      "run_record": "MAC3_TEST/runs/smoke_global_mlp_run.json",
+      "uses_facade_modules": ["gts_rm.models"]
+    }
   }
 }

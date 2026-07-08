@@ -34,11 +34,12 @@ The package entry point is:
 import gts_rm
 ```
 
-## CP22 Contract
+## CP23 Contract
 
-CP21 locked this directory as the operational boundary. CP22 adds a stable
-library facade over CP20. See `CONTRACT.md` and `manifest.json` for the
-machine-readable and human-readable contracts.
+CP21 locked this directory as the operational boundary. CP22 added a stable
+library facade over CP20. CP23 adds the first executable smoke workflow. See
+`CONTRACT.md` and `manifest.json` for the machine-readable and human-readable
+contracts.
 
 The current directory layout is:
 
@@ -49,6 +50,7 @@ artifacts/ model artifacts and persisted runs
 reports/   evaluation and acceptance reports
 runs/      run manifests and execution records
 notebooks/ optional notebooks, not the source of truth
+workflows/ executable use-case workflows
 ```
 
 The public facade is:
@@ -56,3 +58,14 @@ The public facade is:
 ```python
 from gts_rm import data, models, training, evaluation, artifacts, config
 ```
+
+## CP23 Smoke
+
+The first operational workflow is:
+
+```powershell
+python -m MAC3_TEST.workflows.smoke_global_mlp
+```
+
+It builds the configured global MLP through `gts_rm.models`, runs a synthetic
+forward pass, and writes JSON evidence under `reports/` and `runs/`.

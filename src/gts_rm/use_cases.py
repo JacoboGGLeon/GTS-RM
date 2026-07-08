@@ -48,6 +48,9 @@ class UseCaseContract:
             paths.append(REPO_ROOT / str(path_value))
         for path_value in self.manifest.get("configs", {}).values():
             paths.append(REPO_ROOT / str(path_value))
+        for workflow in self.manifest.get("workflows", {}).values():
+            paths.append(REPO_ROOT / str(workflow["path"]))
+            paths.append(REPO_ROOT / str(workflow["config"]))
         return tuple(paths)
 
     def validate(self) -> None:
@@ -73,6 +76,9 @@ class UseCaseContract:
             raise ValueError("library facade modules changed")
         if facade.get("migration_mode") != "wrapper_first":
             raise ValueError("library facade migration_mode must be wrapper_first")
+        smoke = (self.manifest.get("workflows") or {}).get("smoke_global_mlp") or {}
+        if smoke.get("uses_facade_modules") != ["gts_rm.models"]:
+            raise ValueError("smoke workflow must use the gts_rm.models facade")
         missing = [path for path in self.required_paths() if not path.exists()]
         if missing:
             raise FileNotFoundError(f"Missing use-case contract paths: {missing}")

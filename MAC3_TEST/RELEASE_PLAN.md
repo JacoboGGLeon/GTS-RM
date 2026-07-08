@@ -27,7 +27,7 @@ Status: complete.
 
 ## Phase 4: Library Facade
 
-Status: in progress.
+Status: complete.
 
 - Expose CP20 through stable `gts_rm.*` modules.
 - Keep CP20 as the implementation source.
@@ -35,9 +35,9 @@ Status: in progress.
 
 ## Phase 5: Use-Case Workflow
 
-Status: pending.
+Status: in progress.
 
-- Add a MAC3_TEST training/evaluation runbook.
+- Add a MAC3_TEST smoke workflow.
 - Define expected data inputs.
 - Define release acceptance metrics.
 - Produce a reproducible smoke workflow.
