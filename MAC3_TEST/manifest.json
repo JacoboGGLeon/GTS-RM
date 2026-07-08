@@ -1,0 +1,11 @@
+{
+  "name": "MAC3_TEST",
+  "kind": "use_case",
+  "library": "gts-rm",
+  "baseline": "CP20",
+  "release_first": true,
+  "tutorials_deferred": true,
+  "entry_package": "gts_rm",
+  "frozen_contract": "liquidez_2026_cp20_prework_financial_gpt/BASELINE_CP20_LOCK.md",
+  "cp20_bundle": "liquidez_2026_cp20_prework_financial_gpt"
+}

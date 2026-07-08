@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gts-rm"
+version = "0.1.0"
+description = "Global Time-Series Representation Model library scaffold for the MAC3_TEST use case."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "pandas",
+    "polars",
+    "pyarrow",
+    "scikit-learn",
+    "matplotlib",
+    "optuna",
+    "torch",
+    "tqdm",
+    "boto3",
+    "nbformat",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = [
+    "tests",
+    "liquidez_2026_cp20_prework_financial_gpt/tests",
+]
