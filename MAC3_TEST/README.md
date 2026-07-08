@@ -34,24 +34,13 @@ The package entry point is:
 import gts_rm
 ```
 
-## CP24 Contract
+## CP25 Contract
 
 CP21 locked this directory as the operational boundary. CP22 added a stable
 library facade over CP20. CP23 added executable smoke workflows for the four
-locked global model architectures. CP24 migrates operational configuration into
-`MAC3_TEST/configs` and validates it through `gts_rm.config`.
-
-The current directory layout is:
-
-```text
-configs/   versioned use-case configuration
-data/      canonical input data location
-artifacts/ model artifacts and persisted runs
-reports/   evaluation and acceptance reports
-runs/      run manifests and execution records
-notebooks/ optional notebooks, not the source of truth
-workflows/ executable use-case workflows
-```
+locked global model architectures. CP24 migrated operational configuration into
+`MAC3_TEST/configs`. CP25 migrates the data contract into
+`MAC3_TEST/configs/data_contract.json` and validates it through `gts_rm.data`.
 
 The public facade is:
 
@@ -67,21 +56,20 @@ from gts_rm import config
 bundle = config.load_mac3_config_bundle()
 ```
 
+Load the data contract with:
+
+```python
+from gts_rm import data
+
+contract = data.load_mac3_data_contract()
+```
+
 ## Smoke Suite
 
 Run the full smoke suite from the repository root:
 
 ```powershell
 python -m MAC3_TEST.workflows.smoke_all_global_models
-```
-
-Single-architecture entry points are also available:
-
-```powershell
-python -m MAC3_TEST.workflows.smoke_global_mlp
-python -m MAC3_TEST.workflows.smoke_global_mlp_vae
-python -m MAC3_TEST.workflows.smoke_global_rnn
-python -m MAC3_TEST.workflows.smoke_global_rnn_bi
 ```
 
 Each workflow loads config through `gts_rm.config`, builds the configured global

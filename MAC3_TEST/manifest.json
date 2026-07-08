@@ -3,8 +3,8 @@
     "kind":  "use_case",
     "library":  "gts-rm",
     "baseline":  "CP20",
-    "checkpoint":  "CP24",
-    "status":  "config_migration",
+    "checkpoint":  "CP25",
+    "status":  "data_contract_migration",
     "release_first":  true,
     "tutorials_deferred":  true,
     "entry_package":  "gts_rm",
@@ -24,7 +24,8 @@
                     "stage":  "MAC3_TEST/configs/stage_cp20.json",
                     "training":  "MAC3_TEST/configs/training_smoke.json",
                     "candidates":  "MAC3_TEST/configs/candidates_smoke.json",
-                    "notebooks":  "MAC3_TEST/configs/notebooks_mac3.json"
+                    "notebooks":  "MAC3_TEST/configs/notebooks_mac3.json",
+                    "data_contract":  "MAC3_TEST/configs/data_contract.json"
                 },
     "directories":  {
                         "configs":  "MAC3_TEST/configs",
@@ -38,12 +39,19 @@
                    "canonical_panel":  {
                                            "format":  "global_long",
                                            "required_columns_source":  "global_contracts.GLOBAL_LONG_REQUIRED_COLUMNS",
-                                           "location":  "MAC3_TEST/data"
+                                           "location":  "MAC3_TEST/data",
+                                           "contract":  "MAC3_TEST/configs/data_contract.json"
                                        },
                    "calendar_features":  {
                                              "format":  "table",
                                              "required":  true,
-                                             "location":  "MAC3_TEST/data"
+                                             "location":  "MAC3_TEST/data",
+                                             "exogenous_columns":  [
+                                                                       "month_sin",
+                                                                       "month_cos",
+                                                                       "is_month_end"
+                                                                   ],
+                                             "date_column":  "fecha"
                                          }
                },
     "outputs":  {
@@ -167,5 +175,17 @@
                                                              "rnn",
                                                              "rnn_bi"
                                                          ]
-                         }
+                         },
+    "data_contract_migration":  {
+                                    "checkpoint":  "CP25",
+                                    "source_of_truth":  "MAC3_TEST/configs/data_contract.json",
+                                    "loader":  "gts_rm.data.load_mac3_data_contract",
+                                    "schema_source":  "global_contracts.GLOBAL_LONG_REQUIRED_COLUMNS",
+                                    "validation_entrypoints":  [
+                                                                   "gts_rm.data.load_mac3_data_contract",
+                                                                   "gts_rm.data.validate_global_long",
+                                                                   "gts_rm.data.prepare_calendar_frame"
+                                                               ],
+                                    "requires_real_data":  false
+                                }
 }

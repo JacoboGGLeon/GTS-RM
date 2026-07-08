@@ -53,7 +53,17 @@ Status: complete.
 - Validate migrated configs from tests and smoke workflows.
 - Keep CP20 behavior unchanged.
 
-## Phase 7: Tutorials
+## Phase 7: Data Contract Migration
+
+Status: complete.
+
+- Add `MAC3_TEST/configs/data_contract.json`.
+- Add `gts_rm.data.load_mac3_data_contract`.
+- Validate MAC3 data schema against CP20 global-long and model-input contracts.
+- Align notebook configs with the same canonical panel and calendar contract.
+- Defer real data ingestion to the next checkpoint.
+
+## Phase 8: Tutorials
 
 Status: deferred.
 

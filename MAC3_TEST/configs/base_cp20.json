@@ -1,6 +1,6 @@
 {
   "name": "base_cp20",
-  "checkpoint": "CP24",
+  "checkpoint": "CP25",
   "baseline": "CP20",
   "architecture_family": "global",
   "supported_architectures": ["mlp", "mlp_vae", "rnn", "rnn_bi"],
@@ -20,6 +20,7 @@
     "smoke_global_rnn.json",
     "smoke_global_rnn_bi.json"
   ],
+  "data_contract": "MAC3_TEST/configs/data_contract.json",
   "facade_modules": [
     "gts_rm.config",
     "gts_rm.data",

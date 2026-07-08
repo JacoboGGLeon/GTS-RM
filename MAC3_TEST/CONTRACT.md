@@ -1,29 +1,59 @@
-# CP24 - MAC3_TEST Config Migration Contract
+# CP25 - MAC3_TEST Data Contract Migration
 
 `MAC3_TEST` is the release-first use case for GTS-RM. It is not a tutorial.
-The CP20 bundle remains the implementation source while operational
-configuration moves into `MAC3_TEST/configs` and is loaded through `gts_rm.config`.
+The CP20 bundle remains the implementation source while the operational data
+contract moves into `MAC3_TEST/configs/data_contract.json` and is loaded through
+`gts_rm.data`.
 
 ## Scope
 
 CP21 defined the use-case boundary. CP22 added the library facade. CP23 added
-smoke workflows for the four locked CP20 global architectures. CP24 makes
-configuration a library-facing contract:
+smoke workflows for the four locked CP20 global architectures. CP24 migrated
+runtime configs. CP25 migrates the data contract:
 
 - keep CP20 implementation files in place;
-- keep CP20 model behavior unchanged;
-- expose config loading through `gts_rm.config`;
-- keep `MAC3_TEST/configs` as the source of truth for use-case execution;
-- validate stage flags, training config, candidate configs, notebook execution
-  configs and smoke configs from repository-root tests;
-- keep smoke workflows facade-only through `gts_rm.config` and `gts_rm.models`.
+- keep CP20 model and data behavior unchanged;
+- expose the MAC3 data contract through `gts_rm.data`;
+- keep `MAC3_TEST/configs/data_contract.json` as the use-case data schema source;
+- validate global-long columns, model inputs, metadata fields and forbidden
+  input fields against CP20 constants;
+- align notebook configs with the same canonical panel and calendar URIs;
+- avoid requiring real MAC3 data until a later ingestion checkpoint.
 
-CP24 does not:
+CP25 does not:
 
-- move CP20 modules;
+- load production MAC3 data;
 - train a productive model;
-- require real MAC3 input data;
+- move CP20 modules;
+- infer calendar frequency outside the provider temporal axis;
 - add residual, quantile, patching or SSL behavior.
+
+## Data Contract
+
+```text
+MAC3_TEST/configs/data_contract.json
+```
+
+The public loader is:
+
+```python
+from gts_rm import data
+
+contract = data.load_mac3_data_contract()
+contract.validate()
+```
+
+The contract pins:
+
+- canonical global-long required columns from `GLOBAL_LONG_REQUIRED_COLUMNS`;
+- model inputs: `y_context`, `x_history`, `x_future`, `x_static`;
+- metadata-only identifiers and raw categories;
+- forbidden model inputs: `cross_key_id`, `account_currency_id`, `divisa`,
+  `tipo_serie`, `serie`;
+- calendar date column: `fecha`;
+- MAC3 exogenous columns: `month_sin`, `month_cos`, `is_month_end`;
+- split unit: `account_currency_id`;
+- future-known exogenous policy for direct multi-horizon forecasting.
 
 ## Migrated Configs
 
@@ -33,33 +63,15 @@ MAC3_TEST/configs/stage_cp20.json         FinancialGPTStageConfig flags
 MAC3_TEST/configs/training_smoke.json     GlobalTrainingConfig smoke defaults
 MAC3_TEST/configs/candidates_smoke.json   GlobalCandidateConfig per architecture
 MAC3_TEST/configs/notebooks_mac3.json     GlobalNotebookConfig per architecture
+MAC3_TEST/configs/data_contract.json      canonical MAC3 data schema contract
 MAC3_TEST/configs/smoke_global_*.json     executable smoke configs
 MAC3_TEST/configs/acceptance.json         release evidence gates
 ```
 
-The public loader is:
-
-```python
-from gts_rm import config
-
-bundle = config.load_mac3_config_bundle()
-bundle.validate()
-```
-
-The bundle must cover exactly `mlp`, `mlp_vae`, `rnn` and `rnn_bi`.
-
 ## Smoke Workflow Contract
 
-The CP24 workflow suite must:
-
-- load smoke configs through `gts_rm.config`;
-- build each model through `gts_rm.models.build_global_model`;
-- cover exactly `mlp`, `mlp_vae`, `rnn` and `rnn_bi`;
-- use synthetic tensors only;
-- validate `y_pred` shape and finiteness;
-- validate `extras["history_embedding"]` exists and is finite;
-- write one report under `reports/` per architecture;
-- write one run record under `runs/` per architecture.
+The current workflow suite still uses synthetic tensors only. That is intentional:
+CP25 validates the data contract boundary before introducing real ingestion.
 
 ## Library Facade Contract
 
@@ -68,7 +80,7 @@ from the CP20 bundle.
 
 ```text
 gts_rm.config      config loading, feature flags and stage configuration
-gts_rm.data        schema, scaler, split, dataset and temporal axis
+gts_rm.data        data contract, schema, scaler, split, dataset and temporal axis
 gts_rm.models      global model registry and builders
 gts_rm.training    trainer, HPO and curriculum APIs
 gts_rm.evaluation  validation, monitoring and comparison APIs
@@ -89,18 +101,6 @@ The CP20 lock remains active:
 - architectures: `mlp`, `mlp_vae`, `rnn`, `rnn_bi`;
 - no `cross_key_id`, `account_currency_id`, raw `divisa`, raw `tipo_serie` or
   `serie` in `forward`.
-
-## Acceptance Metrics
-
-The first release gate tracks:
-
-- `robust_macro_mase`;
-- `raw_wmape`;
-- `p90_series_error`;
-- `series_improved_pct`.
-
-The CP20 objective remains `robust_macro_mase` until a later checkpoint defines
-a compound score.
 
 ## Migration Rule
 

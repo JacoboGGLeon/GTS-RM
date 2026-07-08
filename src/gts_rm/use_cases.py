@@ -101,6 +101,11 @@ class UseCaseContract:
             raise ValueError("config_migration checkpoint must be CP24")
         if migration.get("loader") != "gts_rm.config.load_mac3_config_bundle":
             raise ValueError("config_migration loader must be gts_rm.config.load_mac3_config_bundle")
+        data_migration = self.manifest.get("data_contract_migration") or {}
+        if data_migration.get("checkpoint") != "CP25":
+            raise ValueError("data_contract_migration checkpoint must be CP25")
+        if data_migration.get("loader") != "gts_rm.data.load_mac3_data_contract":
+            raise ValueError("data_contract_migration loader must be gts_rm.data.load_mac3_data_contract")
         for workflow in workflows.values():
             if workflow.get("uses_facade_modules") != SMOKE_FACADE_MODULES:
                 raise ValueError("smoke workflows must use the gts_rm.config and gts_rm.models facades")

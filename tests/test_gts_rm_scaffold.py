@@ -66,14 +66,15 @@ def test_mac3_test_contract_loads_and_validates() -> None:
 
     contract = gts_rm.load_use_case("MAC3_TEST")
     assert contract.name == "MAC3_TEST"
-    assert contract.manifest["checkpoint"] == "CP24"
-    assert contract.manifest["status"] == "config_migration"
+    assert contract.manifest["checkpoint"] == "CP25"
+    assert contract.manifest["status"] == "data_contract_migration"
     assert contract.contract_path.exists()
     assert contract.cp20_bundle_path == gts_rm.CP20_BUNDLE_ROOT
     assert contract.frozen_contract_path.exists()
     assert set(SMOKE_WORKFLOWS.values()).issubset(contract.manifest["workflows"])
     assert "smoke_all_global_models" in contract.manifest["workflows"]
     assert contract.manifest["config_migration"]["loader"] == "gts_rm.config.load_mac3_config_bundle"
+    assert contract.manifest["data_contract_migration"]["loader"] == "gts_rm.data.load_mac3_data_contract"
 
 
 def test_mac3_test_configs_match_locked_cp20_contract() -> None:
@@ -93,23 +94,26 @@ def test_mac3_test_configs_match_locked_cp20_contract() -> None:
     assert manifest["configs"]["training"] == "MAC3_TEST/configs/training_smoke.json"
     assert manifest["configs"]["candidates"] == "MAC3_TEST/configs/candidates_smoke.json"
     assert manifest["configs"]["notebooks"] == "MAC3_TEST/configs/notebooks_mac3.json"
-    assert base["checkpoint"] == "CP24"
+    assert manifest["configs"]["data_contract"] == "MAC3_TEST/configs/data_contract.json"
+    assert base["checkpoint"] == "CP25"
     assert base["facade_modules"] == FACADE_MODULES
     assert base["model_inputs"] == manifest["locked_cp20_contract"]["model_inputs"]
     assert base["supported_architectures"] == manifest["locked_cp20_contract"]["architectures"]
     assert base["output"] == manifest["locked_cp20_contract"]["output"]
     assert base["latent"] == manifest["locked_cp20_contract"]["latent"]
     assert base["config_loader"] == "gts_rm.config.load_mac3_config_bundle"
+    assert base["data_contract"] == "MAC3_TEST/configs/data_contract.json"
     assert list(smokes) == SUPPORTED_ARCHITECTURES
     for architecture, smoke in smokes.items():
         assert smoke["checkpoint"] == "CP24"
         assert smoke["architecture"] == architecture
         assert smoke["expected_output_shape"] == [2, 3, 1]
-    assert acceptance["checkpoint"] == "CP24"
+    assert acceptance["checkpoint"] == "CP25"
     assert acceptance["metrics"]["primary"] == "robust_macro_mase"
     assert acceptance["release_gate"]["must_use_library_facade"] is True
     assert acceptance["release_gate"]["must_run_smoke_workflow"] is True
     assert acceptance["release_gate"]["must_load_migrated_configs"] is True
+    assert acceptance["release_gate"]["must_load_data_contract"] is True
 
 
 def test_cp22_facade_modules_import_and_expose_expected_symbols() -> None:
@@ -118,6 +122,7 @@ def test_cp22_facade_modules_import_and_expose_expected_symbols() -> None:
     assert modules["gts_rm.config"].FinancialGPTStageConfig().flags.use_static_context is True
     assert modules["gts_rm.config"].CONFIG_CHECKPOINT == "CP24"
     assert modules["gts_rm.data"].MODEL_INPUT_FIELDS == ("y_context", "x_history", "x_future", "x_static")
+    assert modules["gts_rm.data"].DATA_CONTRACT_CHECKPOINT == "CP25"
     assert modules["gts_rm.data"].ContextScaler is not None
     assert modules["gts_rm.models"].list_global_models() == tuple(SUPPORTED_ARCHITECTURES)
     assert modules["gts_rm.models"].GLOBAL_OUTPUT_FIELD == "y_pred"
@@ -145,6 +150,38 @@ def test_cp24_migrated_config_bundle_loads_and_validates() -> None:
         assert bundle.candidates[architecture].model_config == bundle.smokes[architecture]["model_config"]
         assert bundle.notebooks[architecture].architecture == architecture
         assert bundle.notebooks[architecture].artifact_root == f"MAC3_TEST/artifacts/{architecture}"
+
+
+def test_cp25_data_contract_loads_and_matches_cp20_schema() -> None:
+    from gts_rm import data
+
+    contract = data.load_mac3_data_contract()
+    summary = data.mac3_data_contract_summary()
+
+    assert contract.checkpoint == "CP25"
+    assert contract.global_long_required_columns == data.GLOBAL_LONG_REQUIRED_COLUMNS
+    assert contract.model_input_fields == data.MODEL_INPUT_FIELDS
+    assert contract.metadata_fields == data.MODEL_METADATA_FIELDS
+    assert contract.forbidden_model_input_fields == data.FORBIDDEN_MODEL_INPUT_FIELDS
+    assert contract.calendar_date_column == data.DATE_COLUMN
+    assert contract.target_column == data.TARGET_COLUMN
+    assert contract.split_unit == data.ACCOUNT_CURRENCY_ID_COLUMN
+    assert contract.exogenous_columns == ("month_sin", "month_cos", "is_month_end")
+    assert summary["future_known_exogenous"] is True
+    assert summary["global_long_columns"] == len(data.GLOBAL_LONG_REQUIRED_COLUMNS)
+
+
+def test_cp25_data_contract_matches_notebook_configs() -> None:
+    from gts_rm import config, data
+
+    data_contract = data.load_mac3_data_contract()
+    notebooks = config.load_notebook_configs()
+
+    for notebook in notebooks.values():
+        assert notebook.global_long_uri == data_contract.global_long_uri
+        assert notebook.calendar_uri == data_contract.calendar_uri
+        assert notebook.calendar_date_column == data_contract.calendar_date_column
+        assert tuple(notebook.exogenous_columns) == data_contract.exogenous_columns
 
 
 def test_cp23_smoke_workflows_run_with_facade(tmp_path) -> None:

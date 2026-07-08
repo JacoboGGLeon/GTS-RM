@@ -1,0 +1,53 @@
+{
+  "name": "mac3_test_data_contract",
+  "checkpoint": "CP25",
+  "baseline": "CP20",
+  "global_long_uri": "MAC3_TEST/data/global_series_long.parquet",
+  "calendar_uri": "MAC3_TEST/data/calendar_features.parquet",
+  "global_long_required_columns": [
+    "fecha",
+    "account_currency_id",
+    "divisa",
+    "cross_key_id",
+    "tipo_serie",
+    "series_age_step",
+    "target",
+    "difficulty_score",
+    "nivel_curriculum",
+    "grupo"
+  ],
+  "model_input_fields": [
+    "y_context",
+    "x_history",
+    "x_future",
+    "x_static"
+  ],
+  "metadata_fields": [
+    "cross_key_id",
+    "account_currency_id",
+    "divisa",
+    "tipo_serie",
+    "cutoff",
+    "center",
+    "scale",
+    "scale_component",
+    "series_age_step"
+  ],
+  "forbidden_model_input_fields": [
+    "cross_key_id",
+    "account_currency_id",
+    "divisa",
+    "tipo_serie",
+    "serie"
+  ],
+  "calendar_date_column": "fecha",
+  "exogenous_columns": [
+    "month_sin",
+    "month_cos",
+    "is_month_end"
+  ],
+  "target_column": "target",
+  "split_unit": "account_currency_id",
+  "future_known_exogenous": true,
+  "temporal_axis_policy": "provider temporal axis rows are authoritative; do not infer calendar frequency"
+}
