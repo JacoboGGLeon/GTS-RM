@@ -1,77 +1,72 @@
-# CP25 - MAC3_TEST Data Contract Migration
+# CP26 - MAC3_TEST Model/Training Facade Migration
 
 `MAC3_TEST` is the release-first use case for GTS-RM. It is not a tutorial.
-The CP20 bundle remains the implementation source while the operational data
-contract moves into `MAC3_TEST/configs/data_contract.json` and is loaded through
-`gts_rm.data`.
+The CP20 bundle remains the implementation source while model and training
+entrypoints move behind stable `gts_rm.models` and `gts_rm.training` helpers.
 
 ## Scope
 
 CP21 defined the use-case boundary. CP22 added the library facade. CP23 added
 smoke workflows for the four locked CP20 global architectures. CP24 migrated
-runtime configs. CP25 migrates the data contract:
+runtime configs. CP25 migrated the data contract. CP26 migrates the model and
+training facade:
 
 - keep CP20 implementation files in place;
-- keep CP20 model and data behavior unchanged;
-- expose the MAC3 data contract through `gts_rm.data`;
-- keep `MAC3_TEST/configs/data_contract.json` as the use-case data schema source;
-- validate global-long columns, model inputs, metadata fields and forbidden
-  input fields against CP20 constants;
-- align notebook configs with the same canonical panel and calendar URIs;
-- avoid requiring real MAC3 data until a later ingestion checkpoint.
+- keep CP20 model/training behavior unchanged;
+- build MAC3 smoke models through `gts_rm.models` from migrated configs;
+- load MAC3 candidate/training configs through `gts_rm.training`;
+- build CP20 `GlobalTrainer` instances through `gts_rm.training`;
+- avoid executing productive training until a later workflow checkpoint.
 
-CP25 does not:
+CP26 does not:
 
-- load production MAC3 data;
 - train a productive model;
+- load production MAC3 data;
 - move CP20 modules;
-- infer calendar frequency outside the provider temporal axis;
 - add residual, quantile, patching or SSL behavior.
 
-## Data Contract
-
-```text
-MAC3_TEST/configs/data_contract.json
-```
-
-The public loader is:
+## Public Model Facade
 
 ```python
-from gts_rm import data
+from gts_rm import models
 
-contract = data.load_mac3_data_contract()
-contract.validate()
+specs = models.mac3_model_specs()
+model = models.build_mac3_smoke_model("mlp")
+model = models.build_global_model_from_config(payload)
 ```
 
-The contract pins:
+The facade must cover exactly `mlp`, `mlp_vae`, `rnn` and `rnn_bi`.
 
-- canonical global-long required columns from `GLOBAL_LONG_REQUIRED_COLUMNS`;
-- model inputs: `y_context`, `x_history`, `x_future`, `x_static`;
-- metadata-only identifiers and raw categories;
-- forbidden model inputs: `cross_key_id`, `account_currency_id`, `divisa`,
-  `tipo_serie`, `serie`;
-- calendar date column: `fecha`;
-- MAC3 exogenous columns: `month_sin`, `month_cos`, `is_month_end`;
-- split unit: `account_currency_id`;
-- future-known exogenous policy for direct multi-horizon forecasting.
+## Public Training Facade
 
-## Migrated Configs
+```python
+from gts_rm import training
 
-```text
-MAC3_TEST/configs/base_cp20.json          CP20 locked contract summary
-MAC3_TEST/configs/stage_cp20.json         FinancialGPTStageConfig flags
-MAC3_TEST/configs/training_smoke.json     GlobalTrainingConfig smoke defaults
-MAC3_TEST/configs/candidates_smoke.json   GlobalCandidateConfig per architecture
-MAC3_TEST/configs/notebooks_mac3.json     GlobalNotebookConfig per architecture
-MAC3_TEST/configs/data_contract.json      canonical MAC3 data schema contract
-MAC3_TEST/configs/smoke_global_*.json     executable smoke configs
-MAC3_TEST/configs/acceptance.json         release evidence gates
+candidates = training.load_mac3_candidates()
+candidate = training.get_mac3_candidate("rnn")
+trainer = training.build_mac3_trainer("rnn")
+summary = training.mac3_training_facade_summary()
+```
+
+The trainer is CP20 `GlobalTrainer` configured from `MAC3_TEST/configs`, but CP26
+only validates construction. Real training remains deferred.
+
+## Data And Config Contracts
+
+The CP24 config bundle and CP25 data contract remain active:
+
+```python
+from gts_rm import config, data
+
+bundle = config.load_mac3_config_bundle()
+contract = data.load_mac3_data_contract()
 ```
 
 ## Smoke Workflow Contract
 
 The current workflow suite still uses synthetic tensors only. That is intentional:
-CP25 validates the data contract boundary before introducing real ingestion.
+CP26 validates model/trainer construction before introducing real ingestion and
+training execution.
 
 ## Library Facade Contract
 
@@ -81,26 +76,14 @@ from the CP20 bundle.
 ```text
 gts_rm.config      config loading, feature flags and stage configuration
 gts_rm.data        data contract, schema, scaler, split, dataset and temporal axis
-gts_rm.models      global model registry and builders
-gts_rm.training    trainer, HPO and curriculum APIs
+gts_rm.models      model specs and builders over CP20 global architectures
+gts_rm.training    candidate loading and trainer builders over CP20 training APIs
 gts_rm.evaluation  validation, monitoring and comparison APIs
 gts_rm.artifacts   manager, local artifacts and S3 persistence APIs
 ```
 
 The facade is wrapper-first. CP20 remains the implementation source until later
 checkpoints migrate internals module by module.
-
-## Model Contract
-
-The CP20 lock remains active:
-
-- `forward` inputs: `y_context`, `x_history`, `x_future`, `x_static`;
-- output: `y_pred`;
-- latent representation: `extras["history_embedding"]`;
-- output shape: `[batch, horizon, 1]`;
-- architectures: `mlp`, `mlp_vae`, `rnn`, `rnn_bi`;
-- no `cross_key_id`, `account_currency_id`, raw `divisa`, raw `tipo_serie` or
-  `serie` in `forward`.
 
 ## Migration Rule
 

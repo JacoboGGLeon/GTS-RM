@@ -3,8 +3,8 @@
     "kind":  "use_case",
     "library":  "gts-rm",
     "baseline":  "CP20",
-    "checkpoint":  "CP25",
-    "status":  "data_contract_migration",
+    "checkpoint":  "CP26",
+    "status":  "model_training_facade_migration",
     "release_first":  true,
     "tutorials_deferred":  true,
     "entry_package":  "gts_rm",
@@ -187,5 +187,21 @@
                                                                    "gts_rm.data.prepare_calendar_frame"
                                                                ],
                                     "requires_real_data":  false
-                                }
+                                },
+    "model_training_facade_migration":  {
+                                            "checkpoint":  "CP26",
+                                            "model_entrypoints":  [
+                                                                      "gts_rm.models.build_global_model_from_config",
+                                                                      "gts_rm.models.build_mac3_smoke_model",
+                                                                      "gts_rm.models.mac3_model_specs"
+                                                                  ],
+                                            "training_entrypoints":  [
+                                                                         "gts_rm.training.load_mac3_candidates",
+                                                                         "gts_rm.training.get_mac3_candidate",
+                                                                         "gts_rm.training.build_mac3_trainer",
+                                                                         "gts_rm.training.mac3_training_facade_summary"
+                                                                     ],
+                                            "implementation_source":  "liquidez_2026_cp20_prework_financial_gpt",
+                                            "executes_training":  false
+                                        }
 }

@@ -63,7 +63,16 @@ Status: complete.
 - Align notebook configs with the same canonical panel and calendar contract.
 - Defer real data ingestion to the next checkpoint.
 
-## Phase 8: Tutorials
+## Phase 8: Model/Training Facade Migration
+
+Status: complete.
+
+- Add model builders over migrated MAC3 configs.
+- Add candidate loaders and trainer builders over CP20 training APIs.
+- Validate all four architectures from repository-root tests.
+- Defer productive training execution to a later workflow checkpoint.
+
+## Phase 9: Tutorials
 
 Status: deferred.
 

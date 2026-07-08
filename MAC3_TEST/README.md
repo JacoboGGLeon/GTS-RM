@@ -34,13 +34,12 @@ The package entry point is:
 import gts_rm
 ```
 
-## CP25 Contract
+## CP26 Contract
 
 CP21 locked this directory as the operational boundary. CP22 added a stable
-library facade over CP20. CP23 added executable smoke workflows for the four
-locked global model architectures. CP24 migrated operational configuration into
-`MAC3_TEST/configs`. CP25 migrates the data contract into
-`MAC3_TEST/configs/data_contract.json` and validates it through `gts_rm.data`.
+library facade over CP20. CP23 added executable smoke workflows. CP24 migrated
+configuration. CP25 migrated the data contract. CP26 migrates model and training
+entrypoints into `gts_rm.models` and `gts_rm.training`.
 
 The public facade is:
 
@@ -48,19 +47,17 @@ The public facade is:
 from gts_rm import data, models, training, evaluation, artifacts, config
 ```
 
-Load the migrated config bundle with:
+Use the migrated model/training facade with:
 
 ```python
-from gts_rm import config
-
-bundle = config.load_mac3_config_bundle()
+model = models.build_mac3_smoke_model("mlp")
+trainer = training.build_mac3_trainer("mlp")
 ```
 
-Load the data contract with:
+Load configs and data contract with:
 
 ```python
-from gts_rm import data
-
+bundle = config.load_mac3_config_bundle()
 contract = data.load_mac3_data_contract()
 ```
 

@@ -66,8 +66,8 @@ def test_mac3_test_contract_loads_and_validates() -> None:
 
     contract = gts_rm.load_use_case("MAC3_TEST")
     assert contract.name == "MAC3_TEST"
-    assert contract.manifest["checkpoint"] == "CP25"
-    assert contract.manifest["status"] == "data_contract_migration"
+    assert contract.manifest["checkpoint"] == "CP26"
+    assert contract.manifest["status"] == "model_training_facade_migration"
     assert contract.contract_path.exists()
     assert contract.cp20_bundle_path == gts_rm.CP20_BUNDLE_ROOT
     assert contract.frozen_contract_path.exists()
@@ -75,6 +75,8 @@ def test_mac3_test_contract_loads_and_validates() -> None:
     assert "smoke_all_global_models" in contract.manifest["workflows"]
     assert contract.manifest["config_migration"]["loader"] == "gts_rm.config.load_mac3_config_bundle"
     assert contract.manifest["data_contract_migration"]["loader"] == "gts_rm.data.load_mac3_data_contract"
+    assert "gts_rm.models.build_global_model_from_config" in contract.manifest["model_training_facade_migration"]["model_entrypoints"]
+    assert "gts_rm.training.build_mac3_trainer" in contract.manifest["model_training_facade_migration"]["training_entrypoints"]
 
 
 def test_mac3_test_configs_match_locked_cp20_contract() -> None:
@@ -95,7 +97,7 @@ def test_mac3_test_configs_match_locked_cp20_contract() -> None:
     assert manifest["configs"]["candidates"] == "MAC3_TEST/configs/candidates_smoke.json"
     assert manifest["configs"]["notebooks"] == "MAC3_TEST/configs/notebooks_mac3.json"
     assert manifest["configs"]["data_contract"] == "MAC3_TEST/configs/data_contract.json"
-    assert base["checkpoint"] == "CP25"
+    assert base["checkpoint"] == "CP26"
     assert base["facade_modules"] == FACADE_MODULES
     assert base["model_inputs"] == manifest["locked_cp20_contract"]["model_inputs"]
     assert base["supported_architectures"] == manifest["locked_cp20_contract"]["architectures"]
@@ -103,17 +105,20 @@ def test_mac3_test_configs_match_locked_cp20_contract() -> None:
     assert base["latent"] == manifest["locked_cp20_contract"]["latent"]
     assert base["config_loader"] == "gts_rm.config.load_mac3_config_bundle"
     assert base["data_contract"] == "MAC3_TEST/configs/data_contract.json"
+    assert base["model_training_facade"]["model_entrypoint"] == "gts_rm.models.build_global_model_from_config"
+    assert base["model_training_facade"]["trainer_entrypoint"] == "gts_rm.training.build_mac3_trainer"
     assert list(smokes) == SUPPORTED_ARCHITECTURES
     for architecture, smoke in smokes.items():
         assert smoke["checkpoint"] == "CP24"
         assert smoke["architecture"] == architecture
         assert smoke["expected_output_shape"] == [2, 3, 1]
-    assert acceptance["checkpoint"] == "CP25"
+    assert acceptance["checkpoint"] == "CP26"
     assert acceptance["metrics"]["primary"] == "robust_macro_mase"
     assert acceptance["release_gate"]["must_use_library_facade"] is True
     assert acceptance["release_gate"]["must_run_smoke_workflow"] is True
     assert acceptance["release_gate"]["must_load_migrated_configs"] is True
     assert acceptance["release_gate"]["must_load_data_contract"] is True
+    assert acceptance["release_gate"]["must_load_model_training_facade"] is True
 
 
 def test_cp22_facade_modules_import_and_expose_expected_symbols() -> None:
@@ -126,7 +131,11 @@ def test_cp22_facade_modules_import_and_expose_expected_symbols() -> None:
     assert modules["gts_rm.data"].ContextScaler is not None
     assert modules["gts_rm.models"].list_global_models() == tuple(SUPPORTED_ARCHITECTURES)
     assert modules["gts_rm.models"].GLOBAL_OUTPUT_FIELD == "y_pred"
+    assert modules["gts_rm.models"].build_global_model_from_config is not None
+    assert modules["gts_rm.models"].build_mac3_smoke_model is not None
     assert modules["gts_rm.training"].GlobalTrainingConfig is not None
+    assert modules["gts_rm.training"].build_mac3_trainer is not None
+    assert modules["gts_rm.training"].load_mac3_candidates is not None
     assert modules["gts_rm.training"].GlobalCurriculumConfig is not None
     assert modules["gts_rm.evaluation"].GlobalValidationMetrics is not None
     assert modules["gts_rm.evaluation"].FinancialGPTMonitorResult is not None
@@ -182,6 +191,40 @@ def test_cp25_data_contract_matches_notebook_configs() -> None:
         assert notebook.calendar_uri == data_contract.calendar_uri
         assert notebook.calendar_date_column == data_contract.calendar_date_column
         assert tuple(notebook.exogenous_columns) == data_contract.exogenous_columns
+
+
+def test_cp26_model_facade_builds_from_migrated_configs() -> None:
+    from gts_rm import models
+
+    specs = models.mac3_model_specs()
+
+    assert tuple(specs) == tuple(SUPPORTED_ARCHITECTURES)
+    for architecture in SUPPORTED_ARCHITECTURES:
+        model = models.build_mac3_smoke_model(architecture)
+        spec = specs[architecture]
+        assert spec.architecture == architecture
+        assert model.dimensions.window_size == spec.window_size
+        assert model.dimensions.horizon == spec.horizon
+        assert model.dimensions.exogenous_dim == spec.exogenous_dim
+        assert model.dimensions.static_dim == spec.static_dim
+
+
+def test_cp26_training_facade_builds_trainers_from_candidates() -> None:
+    from gts_rm import training
+
+    candidates = training.load_mac3_candidates()
+    summary = training.mac3_training_facade_summary()
+
+    assert tuple(candidates) == tuple(SUPPORTED_ARCHITECTURES)
+    assert summary["architectures"] == tuple(SUPPORTED_ARCHITECTURES)
+    assert summary["selection_metric"] == "robust_macro_mase"
+    for architecture in SUPPORTED_ARCHITECTURES:
+        candidate = training.get_mac3_candidate(architecture)
+        trainer = training.build_mac3_trainer(architecture)
+        assert candidate == candidates[architecture]
+        assert trainer.architecture == architecture
+        assert trainer.model_config == dict(candidate.model_config)
+        assert trainer.training_config.selection_metric == "robust_macro_mase"
 
 
 def test_cp23_smoke_workflows_run_with_facade(tmp_path) -> None:

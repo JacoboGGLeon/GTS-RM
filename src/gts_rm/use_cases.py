@@ -106,6 +106,15 @@ class UseCaseContract:
             raise ValueError("data_contract_migration checkpoint must be CP25")
         if data_migration.get("loader") != "gts_rm.data.load_mac3_data_contract":
             raise ValueError("data_contract_migration loader must be gts_rm.data.load_mac3_data_contract")
+        model_training = self.manifest.get("model_training_facade_migration") or {}
+        if model_training.get("checkpoint") != "CP26":
+            raise ValueError("model_training_facade_migration checkpoint must be CP26")
+        model_entrypoints = model_training.get("model_entrypoints") or []
+        training_entrypoints = model_training.get("training_entrypoints") or []
+        if "gts_rm.models.build_global_model_from_config" not in model_entrypoints:
+            raise ValueError("CP26 must expose gts_rm.models.build_global_model_from_config")
+        if "gts_rm.training.build_mac3_trainer" not in training_entrypoints:
+            raise ValueError("CP26 must expose gts_rm.training.build_mac3_trainer")
         for workflow in workflows.values():
             if workflow.get("uses_facade_modules") != SMOKE_FACADE_MODULES:
                 raise ValueError("smoke workflows must use the gts_rm.config and gts_rm.models facades")
