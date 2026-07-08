@@ -1,4 +1,4 @@
-﻿# CP23 - MAC3_TEST Smoke Workflow Contract
+# CP23 - MAC3_TEST Smoke Workflow Contract
 
 `MAC3_TEST` is the release-first use case for GTS-RM. It is not a tutorial.
 The CP20 bundle remains the source of truth while the operational workflow
@@ -7,7 +7,7 @@ migrates into this directory.
 ## Scope
 
 CP21 defined the case boundary. CP22 added the library facade. CP23 adds the
-first executable smoke workflow:
+executable smoke workflow suite for the four locked CP20 global architectures:
 
 - declare the use-case inputs, outputs and acceptance metrics;
 - create stable directories for configs, data, artifacts, reports, runs and
@@ -18,7 +18,8 @@ first executable smoke workflow:
 - provide stable public modules: `gts_rm.config`, `gts_rm.data`,
   `gts_rm.models`, `gts_rm.training`, `gts_rm.evaluation` and
   `gts_rm.artifacts`;
-- run `MAC3_TEST.workflows.smoke_global_mlp` from the repository root;
+- run one smoke workflow per architecture: `mlp`, `mlp_vae`, `rnn`, `rnn_bi`;
+- run the aggregate suite through `MAC3_TEST.workflows.smoke_all_global_models`;
 - write smoke evidence under `MAC3_TEST/reports` and `MAC3_TEST/runs`.
 
 CP23 does not:
@@ -30,15 +31,16 @@ CP23 does not:
 
 ## Smoke Workflow Contract
 
-The CP23 workflow must:
+The CP23 workflow suite must:
 
-- load `MAC3_TEST/configs/smoke_global_mlp.json`;
-- build the model through `gts_rm.models.build_global_model`;
+- load architecture-specific configs from `MAC3_TEST/configs/smoke_global_*.json`;
+- build each model through `gts_rm.models.build_global_model`;
+- cover exactly `mlp`, `mlp_vae`, `rnn` and `rnn_bi`;
 - use synthetic tensors only;
 - validate `y_pred` shape and finiteness;
 - validate `extras["history_embedding"]` exists and is finite;
-- write `reports/smoke_global_mlp.json`;
-- write `runs/smoke_global_mlp_run.json`.
+- write one report under `reports/` per architecture;
+- write one run record under `runs/` per architecture.
 
 ## Library Facade Contract
 

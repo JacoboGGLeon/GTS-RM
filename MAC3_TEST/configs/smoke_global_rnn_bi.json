@@ -1,0 +1,21 @@
+{
+  "name": "smoke_global_rnn_bi",
+  "checkpoint": "CP23",
+  "seed": 7,
+  "batch_size": 2,
+  "architecture": "rnn_bi",
+  "window_size": 5,
+  "horizon": 3,
+  "exogenous_dim": 2,
+  "static_dim": 4,
+  "model_config": {
+    "latent_dim": 8,
+    "rnn_hidden_size": 16,
+    "rnn_num_layers": 1,
+    "decoder_num_layers": 1,
+    "dec_hidden_size": 16,
+    "dec_num_layers": 1,
+    "use_auxiliary_autoencoder": false
+  },
+  "expected_output_shape": [2, 3, 1]
+}

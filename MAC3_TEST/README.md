@@ -1,4 +1,4 @@
-﻿# MAC3_TEST
+# MAC3_TEST
 
 `MAC3_TEST` is the first release use case for GTS-RM.
 
@@ -37,9 +37,9 @@ import gts_rm
 ## CP23 Contract
 
 CP21 locked this directory as the operational boundary. CP22 added a stable
-library facade over CP20. CP23 adds the first executable smoke workflow. See
-`CONTRACT.md` and `manifest.json` for the machine-readable and human-readable
-contracts.
+library facade over CP20. CP23 adds the executable smoke workflow suite for the
+four locked global model architectures. See `CONTRACT.md` and `manifest.json`
+for the machine-readable and human-readable contracts.
 
 The current directory layout is:
 
@@ -61,11 +61,20 @@ from gts_rm import data, models, training, evaluation, artifacts, config
 
 ## CP23 Smoke
 
-The first operational workflow is:
+Run the full smoke suite from the repository root:
+
+```powershell
+python -m MAC3_TEST.workflows.smoke_all_global_models
+```
+
+Single-architecture entry points are also available:
 
 ```powershell
 python -m MAC3_TEST.workflows.smoke_global_mlp
+python -m MAC3_TEST.workflows.smoke_global_mlp_vae
+python -m MAC3_TEST.workflows.smoke_global_rnn
+python -m MAC3_TEST.workflows.smoke_global_rnn_bi
 ```
 
-It builds the configured global MLP through `gts_rm.models`, runs a synthetic
-forward pass, and writes JSON evidence under `reports/` and `runs/`.
+Each workflow builds the configured global model through `gts_rm.models`, runs a
+synthetic forward pass, and writes JSON evidence under `reports/` and `runs/`.

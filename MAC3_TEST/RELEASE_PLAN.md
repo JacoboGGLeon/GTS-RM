@@ -1,4 +1,4 @@
-﻿# MAC3_TEST Release Plan
+# MAC3_TEST Release Plan
 
 ## Phase 1: Baseline
 
@@ -35,12 +35,13 @@ Status: complete.
 
 ## Phase 5: Use-Case Workflow
 
-Status: in progress.
+Status: complete.
 
-- Add a MAC3_TEST smoke workflow.
+- Add MAC3_TEST smoke workflows for `mlp`, `mlp_vae`, `rnn` and `rnn_bi`.
+- Add an aggregate smoke suite for all locked architectures.
 - Define expected data inputs.
 - Define release acceptance metrics.
-- Produce a reproducible smoke workflow.
+- Produce reproducible smoke workflow evidence under `reports/` and `runs/`.
 
 ## Phase 6: Tutorials
 

@@ -1,77 +1,144 @@
 {
-  "name": "MAC3_TEST",
-  "kind": "use_case",
-  "library": "gts-rm",
-  "baseline": "CP20",
-  "checkpoint": "CP23",
-  "status": "smoke_workflow",
-  "release_first": true,
-  "tutorials_deferred": true,
-  "entry_package": "gts_rm",
-  "frozen_contract": "liquidez_2026_cp20_prework_financial_gpt/BASELINE_CP20_LOCK.md",
-  "cp20_bundle": "liquidez_2026_cp20_prework_financial_gpt",
-  "contract": "MAC3_TEST/CONTRACT.md",
-  "configs": {
-    "base": "MAC3_TEST/configs/base_cp20.json",
-    "smoke": "MAC3_TEST/configs/smoke_global_mlp.json",
-    "acceptance": "MAC3_TEST/configs/acceptance.json"
-  },
-  "directories": {
-    "configs": "MAC3_TEST/configs",
-    "data": "MAC3_TEST/data",
-    "artifacts": "MAC3_TEST/artifacts",
-    "reports": "MAC3_TEST/reports",
-    "runs": "MAC3_TEST/runs",
-    "notebooks": "MAC3_TEST/notebooks"
-  },
-  "inputs": {
-    "canonical_panel": {
-      "format": "global_long",
-      "required_columns_source": "global_contracts.GLOBAL_LONG_REQUIRED_COLUMNS",
-      "location": "MAC3_TEST/data"
-    },
-    "calendar_features": {
-      "format": "table",
-      "required": true,
-      "location": "MAC3_TEST/data"
-    }
-  },
-  "outputs": {
-    "model_artifact": "MAC3_TEST/artifacts",
-    "metrics_report": "MAC3_TEST/reports",
-    "run_record": "MAC3_TEST/runs"
-  },
-  "acceptance_metrics": [
-    "robust_macro_mase",
-    "raw_wmape",
-    "p90_series_error",
-    "series_improved_pct"
-  ],
-  "locked_cp20_contract": {
-    "model_inputs": ["y_context", "x_history", "x_future", "x_static"],
-    "output": "y_pred",
-    "latent": "history_embedding",
-    "architectures": ["mlp", "mlp_vae", "rnn", "rnn_bi"]
-  },
-  "library_facade": {
-    "modules": [
-      "gts_rm.config",
-      "gts_rm.data",
-      "gts_rm.models",
-      "gts_rm.training",
-      "gts_rm.evaluation",
-      "gts_rm.artifacts"
-    ],
-    "implementation_source": "liquidez_2026_cp20_prework_financial_gpt",
-    "migration_mode": "wrapper_first"
-  },
-  "workflows": {
-    "smoke_global_mlp": {
-      "path": "MAC3_TEST/workflows/smoke_global_mlp.py",
-      "config": "MAC3_TEST/configs/smoke_global_mlp.json",
-      "report": "MAC3_TEST/reports/smoke_global_mlp.json",
-      "run_record": "MAC3_TEST/runs/smoke_global_mlp_run.json",
-      "uses_facade_modules": ["gts_rm.models"]
-    }
-  }
+    "name":  "MAC3_TEST",
+    "kind":  "use_case",
+    "library":  "gts-rm",
+    "baseline":  "CP20",
+    "checkpoint":  "CP23",
+    "status":  "smoke_workflow",
+    "release_first":  true,
+    "tutorials_deferred":  true,
+    "entry_package":  "gts_rm",
+    "frozen_contract":  "liquidez_2026_cp20_prework_financial_gpt/BASELINE_CP20_LOCK.md",
+    "cp20_bundle":  "liquidez_2026_cp20_prework_financial_gpt",
+    "contract":  "MAC3_TEST/CONTRACT.md",
+    "configs":  {
+                    "base":  "MAC3_TEST/configs/base_cp20.json",
+                    "smoke":  "MAC3_TEST/configs/smoke_global_mlp.json",
+                    "acceptance":  "MAC3_TEST/configs/acceptance.json",
+                    "smokes":  {
+                                   "mlp":  "MAC3_TEST/configs/smoke_global_mlp.json",
+                                   "mlp_vae":  "MAC3_TEST/configs/smoke_global_mlp_vae.json",
+                                   "rnn":  "MAC3_TEST/configs/smoke_global_rnn.json",
+                                   "rnn_bi":  "MAC3_TEST/configs/smoke_global_rnn_bi.json"
+                               }
+                },
+    "directories":  {
+                        "configs":  "MAC3_TEST/configs",
+                        "data":  "MAC3_TEST/data",
+                        "artifacts":  "MAC3_TEST/artifacts",
+                        "reports":  "MAC3_TEST/reports",
+                        "runs":  "MAC3_TEST/runs",
+                        "notebooks":  "MAC3_TEST/notebooks"
+                    },
+    "inputs":  {
+                   "canonical_panel":  {
+                                           "format":  "global_long",
+                                           "required_columns_source":  "global_contracts.GLOBAL_LONG_REQUIRED_COLUMNS",
+                                           "location":  "MAC3_TEST/data"
+                                       },
+                   "calendar_features":  {
+                                             "format":  "table",
+                                             "required":  true,
+                                             "location":  "MAC3_TEST/data"
+                                         }
+               },
+    "outputs":  {
+                    "model_artifact":  "MAC3_TEST/artifacts",
+                    "metrics_report":  "MAC3_TEST/reports",
+                    "run_record":  "MAC3_TEST/runs"
+                },
+    "acceptance_metrics":  [
+                               "robust_macro_mase",
+                               "raw_wmape",
+                               "p90_series_error",
+                               "series_improved_pct"
+                           ],
+    "locked_cp20_contract":  {
+                                 "model_inputs":  [
+                                                      "y_context",
+                                                      "x_history",
+                                                      "x_future",
+                                                      "x_static"
+                                                  ],
+                                 "output":  "y_pred",
+                                 "latent":  "history_embedding",
+                                 "architectures":  [
+                                                       "mlp",
+                                                       "mlp_vae",
+                                                       "rnn",
+                                                       "rnn_bi"
+                                                   ]
+                             },
+    "library_facade":  {
+                           "modules":  [
+                                           "gts_rm.config",
+                                           "gts_rm.data",
+                                           "gts_rm.models",
+                                           "gts_rm.training",
+                                           "gts_rm.evaluation",
+                                           "gts_rm.artifacts"
+                                       ],
+                           "implementation_source":  "liquidez_2026_cp20_prework_financial_gpt",
+                           "migration_mode":  "wrapper_first"
+                       },
+    "workflows":  {
+                      "smoke_global_mlp":  {
+                                               "path":  "MAC3_TEST/workflows/smoke_global_mlp.py",
+                                               "config":  "MAC3_TEST/configs/smoke_global_mlp.json",
+                                               "report":  "MAC3_TEST/reports/smoke_global_mlp.json",
+                                               "run_record":  "MAC3_TEST/runs/smoke_global_mlp_run.json",
+                                               "architecture":  "mlp",
+                                               "uses_facade_modules":  [
+                                                                           "gts_rm.models"
+                                                                       ]
+                                           },
+                      "smoke_global_mlp_vae":  {
+                                                   "path":  "MAC3_TEST/workflows/smoke_global_mlp_vae.py",
+                                                   "config":  "MAC3_TEST/configs/smoke_global_mlp_vae.json",
+                                                   "report":  "MAC3_TEST/reports/smoke_global_mlp_vae.json",
+                                                   "run_record":  "MAC3_TEST/runs/smoke_global_mlp_vae_run.json",
+                                                   "architecture":  "mlp_vae",
+                                                   "uses_facade_modules":  [
+                                                                               "gts_rm.models"
+                                                                           ]
+                                               },
+                      "smoke_global_rnn":  {
+                                               "path":  "MAC3_TEST/workflows/smoke_global_rnn.py",
+                                               "config":  "MAC3_TEST/configs/smoke_global_rnn.json",
+                                               "report":  "MAC3_TEST/reports/smoke_global_rnn.json",
+                                               "run_record":  "MAC3_TEST/runs/smoke_global_rnn_run.json",
+                                               "architecture":  "rnn",
+                                               "uses_facade_modules":  [
+                                                                           "gts_rm.models"
+                                                                       ]
+                                           },
+                      "smoke_global_rnn_bi":  {
+                                                  "path":  "MAC3_TEST/workflows/smoke_global_rnn_bi.py",
+                                                  "config":  "MAC3_TEST/configs/smoke_global_rnn_bi.json",
+                                                  "report":  "MAC3_TEST/reports/smoke_global_rnn_bi.json",
+                                                  "run_record":  "MAC3_TEST/runs/smoke_global_rnn_bi_run.json",
+                                                  "architecture":  "rnn_bi",
+                                                  "uses_facade_modules":  [
+                                                                              "gts_rm.models"
+                                                                          ]
+                                              },
+                      "smoke_all_global_models":  {
+                                                      "path":  "MAC3_TEST/workflows/smoke_all_global_models.py",
+                                                      "configs":  [
+                                                                      "MAC3_TEST/configs/smoke_global_mlp.json",
+                                                                      "MAC3_TEST/configs/smoke_global_mlp_vae.json",
+                                                                      "MAC3_TEST/configs/smoke_global_rnn.json",
+                                                                      "MAC3_TEST/configs/smoke_global_rnn_bi.json"
+                                                                  ],
+                                                      "architectures":  [
+                                                                            "mlp",
+                                                                            "mlp_vae",
+                                                                            "rnn",
+                                                                            "rnn_bi"
+                                                                        ],
+                                                      "uses_facade_modules":  [
+                                                                                  "gts_rm.models"
+                                                                              ]
+                                                  }
+                  }
 }
