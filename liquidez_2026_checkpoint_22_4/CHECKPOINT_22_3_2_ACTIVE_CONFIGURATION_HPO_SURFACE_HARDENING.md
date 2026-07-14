@@ -187,5 +187,5 @@ Además:
 ## Siguiente checkpoint
 
 ```text
-22.4 — Autoregressive Residual Refinement
+22.3.2b — Autoregressive Residual Refinement
 ```

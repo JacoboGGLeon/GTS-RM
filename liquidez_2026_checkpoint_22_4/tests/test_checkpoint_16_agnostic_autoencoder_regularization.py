@@ -114,13 +114,14 @@ class TestCheckpoint16AgnosticAutoencoderRegularization(unittest.TestCase):
         self.assertTrue(encoder_gradients)
         self.assertTrue(any(g is not None and torch.any(g != 0) for g in encoder_gradients))
 
-    def test_hpo_tunes_autoencoder_capacity_and_importance(self) -> None:
+    def test_cp224_keeps_autoencoder_capacity_outside_compact_hpo(self) -> None:
         study = optuna.create_study(direction="minimize")
         trial = study.ask()
         candidate = suggest_global_candidate(trial, "mlp", GlobalTrainingConfig())
-        self.assertIn("beta_ae", candidate.model_config)
-        self.assertIn("ae_hidden_size", candidate.model_config)
-        self.assertIn("ae_num_layers", candidate.model_config)
+        self.assertNotIn("beta_ae", trial.params)
+        self.assertNotIn("ae_hidden_size", trial.params)
+        self.assertNotIn("ae_num_layers", trial.params)
+        self.assertTrue(candidate.model_config["use_auxiliary_autoencoder"])
         self.assertNotIn("task_heads", candidate.model_config)
 
     def test_vae_keeps_kl_and_autoencoder_regularization_separate(self) -> None:

@@ -141,18 +141,12 @@ class TestCheckpoint9OriginalMethodologyAlignment(unittest.TestCase):
         fixed = optuna.trial.FixedTrial(
             {
                 "window_size": 5,
-                "latent_dim": 16,
+                "latent_dim": 32,
                 "dropout_rate": 0.1,
                 "activation": "gelu",
-                "beta_ae": 0.01,
-                "ae_hidden_size": 32,
-                "ae_num_layers": 1,
-                "enc_hidden_size": 32,
-                "enc_num_layers": 1,
-                "dec_hidden_size": 32,
-                "dec_num_layers": 1,
+                "mlp_hidden_size": 64,
+                "mlp_num_layers": 1,
                 "learning_rate": 1e-3,
-                "weight_decay": 1e-5,
             }
         )
         base = GlobalTrainingConfig(batch_size=128, loss="huber")
@@ -292,9 +286,9 @@ class TestCheckpoint9OriginalMethodologyAlignment(unittest.TestCase):
             if cell["cell_type"] == "code"
         )
         for token in (
-            "HPO_EPOCHS = 5",
-            "HPO_WINDOWS_PER_SERIES = 8",
-            "HPO_VALIDATION_WINDOWS_PER_SERIES = 5",
+            "HPO_EPOCHS = 4",
+            "HPO_WINDOWS_PER_SERIES = 6",
+            "HPO_VALIDATION_WINDOWS_PER_SERIES = 4",
             "GlobalHPOConfig(",
             'SELECTION_METRIC = "robust_macro_mase"',
             "objective_metric=budget.selection_metric",

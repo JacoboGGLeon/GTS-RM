@@ -1,4 +1,4 @@
-checkpoint 22.3.2b: separate total forecast horizon from rollout chunk
+checkpoint 22.4: separate total forecast horizon from rollout chunk
 
 - add strict TemporalForecastConfig to the active notebook surface
 - define FORECAST_HORIZON as the maximum total number of exported future steps
@@ -8,3 +8,10 @@ checkpoint 22.3.2b: separate total forecast horizon from rollout chunk
 - cap both n_steps and explicit date ranges by the authorized forecast horizon
 - document the temporal contract in all four global notebooks
 - preserve encoders, decoders, losses, HPO and pooled-balanced training
+Checkpoint 22.4: autoregressive residual refinement and compact HPO
+
+- refine local residuals causally with previous global prediction and residual
+- couple temporal encoder capacity in the default Optuna search policy
+- remove low-value autoencoder, auxiliary-share and weight-decay HPO axes
+- keep operational data, compute, training and inference controls user-facing
+- validate the four global notebooks and full CP22.4 regression suite

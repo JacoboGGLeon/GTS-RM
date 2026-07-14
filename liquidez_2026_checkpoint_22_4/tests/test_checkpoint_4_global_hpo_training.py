@@ -317,26 +317,18 @@ class TestCheckpoint4GlobalHPOTraining(unittest.TestCase):
     def test_default_search_space_covers_each_architecture(self) -> None:
         common_params = {
             "window_size": 5,
-            "latent_dim": 16,
+            "latent_dim": 32,
             "dropout_rate": 0.1,
             "activation": "gelu",
-            "beta_ae": 0.01,
-            "ae_hidden_size": 32,
-            "ae_num_layers": 1,
-            "batch_size": 32,
             "learning_rate": 1e-3,
-            "weight_decay": 1e-5,
-            "loss": "huber",
         }
         for architecture in SMALL_MODEL_CONFIGS:
             params = dict(common_params)
             if architecture in {"mlp", "mlp_vae"}:
                 params.update(
                     {
-                        "enc_hidden_size": 32,
-                        "enc_num_layers": 1,
-                        "dec_hidden_size": 32,
-                        "dec_num_layers": 1,
+                        "mlp_hidden_size": 64,
+                        "mlp_num_layers": 1,
                     }
                 )
                 if architecture == "mlp_vae":
@@ -344,9 +336,8 @@ class TestCheckpoint4GlobalHPOTraining(unittest.TestCase):
             else:
                 params.update(
                     {
-                        "rnn_hidden_size": 32,
+                        "rnn_hidden_size": 64,
                         "rnn_num_layers": 1,
-                        "decoder_num_layers": 1,
                     }
                 )
             candidate = suggest_global_candidate(

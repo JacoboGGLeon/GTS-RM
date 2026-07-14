@@ -129,4 +129,4 @@ No se modificaron:
 - el presupuesto HPO;
 - el esquema de pesos persistidos.
 
-El siguiente cambio arquitectónico continúa siendo `22.4 — Autoregressive Residual Refinement`. El hotfix de visualización `22.3.3 — Forecast Monitoring and Plot Safety` puede ejecutarse antes si se prioriza corregir los gráficos observados.
+El siguiente cambio arquitectónico continúa siendo `22.3.2b — Autoregressive Residual Refinement`. El hotfix de visualización `22.3.3 — Forecast Monitoring and Plot Safety` puede ejecutarse antes si se prioriza corregir los gráficos observados.

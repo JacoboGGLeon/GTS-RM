@@ -290,9 +290,9 @@ def test_four_notebooks_expose_checkpoint_20_contract() -> None:
         )
         for token in (
             'SELECTION_METRIC = "robust_macro_mase"',
-            "HPO_VALIDATION_WINDOWS_PER_SERIES = 5",
-            "HPO_FINALISTS = 8",
-            "HPO_FIDELITY_EPOCHS = 12",
+                "HPO_VALIDATION_WINDOWS_PER_SERIES = 4",
+            "HPO_FINALISTS = 4",
+            "HPO_FIDELITY_EPOCHS = 8",
             'TRAINING_STRATEGY = "pooled_balanced"',
             "objective_metric=budget.selection_metric",
         ):

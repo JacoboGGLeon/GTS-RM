@@ -1,6 +1,6 @@
 # P0 — Pre-architecture hardening
 
-P0 blocks checkpoint 22.4 until CP22.3.2b reports explicit evidence for:
+P0 blocks checkpoint 22.3.2b until CP22.3.2b reports explicit evidence for:
 
 - event, magnitude and direction metrics by series type and horizon;
 - MC-Dropout coverage, width and interval score by type/horizon;

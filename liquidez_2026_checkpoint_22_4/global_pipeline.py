@@ -1,6 +1,6 @@
 """Contratos Pydantic y workflow público de los notebooks globales GTRM.
 
-Checkpoint 22.3.2b mantiene la ruta productiva y endurece el contrato temporal:
+Checkpoint 22.4 mantiene la ruta productiva y endurece el contrato temporal:
 
 HPO proxy -> selección medium-fidelity -> pooled full training
 -> pooled continuation opcional -> backtest -> forecast.
@@ -65,7 +65,7 @@ class _StrictContract(BaseModel):
 class GlobalNotebookRunContract(_StrictContract):
     """Fuente de verdad validada para un run global completo."""
 
-    schema_version: Literal["22.3.2b"] = "22.3.2b"
+    schema_version: Literal["22.4"] = "22.4"
     surface: GlobalActiveConfiguration | None = None
     notebook: GlobalNotebookConfig
     model: GTRMModelConfig

@@ -109,6 +109,7 @@ class GlobalTrainingConfig:
     modality_encoder_dropout_rate: float = 0.0
     modality_encoder_activation: str = "gelu"
     use_local_residual_decoder: bool = False
+    local_residual_autoregressive: bool = True
     local_residual_lambda: float = 0.01
     global_aux_alpha: float = 0.2
     local_residual_hidden_size: int = 32
@@ -125,7 +126,7 @@ class GlobalTrainingConfig:
     event_loss_share: float = 0.40
     magnitude_loss_share: float = 0.40
     direction_loss_share: float = 0.20
-    hpo_auxiliary_loss_weights: bool = True
+    hpo_auxiliary_loss_weights: bool = False
     auxiliary_head_hidden_size: int = 32
     auxiliary_head_num_layers: int = 1
     auxiliary_head_dropout_rate: float = 0.0
@@ -194,6 +195,8 @@ class GlobalTrainingConfig:
             raise ValueError("Unsupported modality_encoder_activation")
         if not isinstance(self.use_local_residual_decoder, bool):
             raise TypeError("use_local_residual_decoder must be a boolean")
+        if not isinstance(self.local_residual_autoregressive, bool):
+            raise TypeError("local_residual_autoregressive must be a boolean")
         _non_negative_float(self.local_residual_lambda, "local_residual_lambda")
         _non_negative_float(self.global_aux_alpha, "global_aux_alpha")
         _positive_int(self.local_residual_hidden_size, "local_residual_hidden_size")
@@ -816,10 +819,10 @@ def suggest_global_candidate(
     effective_hpo_config = hpo_config or GlobalHPOConfig()
     effective_hpo_config.validate()
     modality_space = effective_hpo_config.modality_encoder_space()
-    window_size = trial.suggest_int("window_size", 3, 25)
-    latent_dim = trial.suggest_categorical("latent_dim", [16, 32, 64, 128])
-    dropout_rate = trial.suggest_float("dropout_rate", 0.0, 0.4)
-    activation = trial.suggest_categorical("activation", ["relu", "gelu", "silu", "tanh"])
+    window_size = trial.suggest_categorical("window_size", [5, 10, 15, 20])
+    latent_dim = trial.suggest_categorical("latent_dim", [32, 64])
+    dropout_rate = trial.suggest_float("dropout_rate", 0.0, 0.2)
+    activation = trial.suggest_categorical("activation", ["gelu", "silu"])
 
     model_config: Dict[str, Any] = {
         "latent_dim": latent_dim,
@@ -840,6 +843,7 @@ def suggest_global_candidate(
         "modality_encoder_dropout_rate": base_training_config.modality_encoder_dropout_rate,
         "modality_encoder_activation": base_training_config.modality_encoder_activation,
         "use_local_residual_decoder": base_training_config.use_local_residual_decoder,
+        "local_residual_autoregressive": base_training_config.local_residual_autoregressive,
         "local_residual_lambda": base_training_config.local_residual_lambda,
         "global_aux_alpha": base_training_config.global_aux_alpha,
         "local_residual_hidden_size": base_training_config.local_residual_hidden_size,
@@ -899,39 +903,71 @@ def suggest_global_candidate(
         and base_training_config.hpo_modality_encoder_architecture
         and modality_space.enabled
     ):
-        model_config.update(
-            {
+        shared_dimensions = sorted(
+            set(modality_space.target_dim_choices)
+            & set(modality_space.historical_dim_choices)
+            & set(modality_space.future_dim_choices)
+        )
+        can_couple = bool(
+            modality_space.couple_temporal_encoders and shared_dimensions
+        )
+        if can_couple:
+            temporal_dim = trial.suggest_categorical(
+                "temporal_encoder_dim", shared_dimensions
+            )
+            layer_min = max(
+                int(modality_space.target_layers.minimum),
+                int(modality_space.historical_layers.minimum),
+                int(modality_space.future_layers.minimum),
+            )
+            layer_max = min(
+                int(modality_space.target_layers.maximum),
+                int(modality_space.historical_layers.maximum),
+                int(modality_space.future_layers.maximum),
+            )
+            can_couple = layer_min <= layer_max
+        if can_couple:
+            temporal_layers = trial.suggest_int(
+                "temporal_encoder_num_layers", layer_min, layer_max
+            )
+            temporal_payload = {
+                "target_encoder_dim": temporal_dim,
+                "historical_encoder_dim": temporal_dim,
+                "future_encoder_dim": temporal_dim,
+                "target_encoder_num_layers": temporal_layers,
+                "historical_encoder_num_layers": temporal_layers,
+                "future_encoder_num_layers": temporal_layers,
+            }
+        else:
+            temporal_payload = {
                 "target_encoder_dim": trial.suggest_categorical(
                     "target_encoder_dim", list(modality_space.target_dim_choices)
                 ),
                 "historical_encoder_dim": trial.suggest_categorical(
-                    "historical_encoder_dim",
-                    list(modality_space.historical_dim_choices),
+                    "historical_encoder_dim", list(modality_space.historical_dim_choices)
                 ),
                 "future_encoder_dim": trial.suggest_categorical(
                     "future_encoder_dim", list(modality_space.future_dim_choices)
                 ),
+                "target_encoder_num_layers": trial.suggest_int(
+                    "target_encoder_num_layers", int(modality_space.target_layers.minimum), int(modality_space.target_layers.maximum)
+                ),
+                "historical_encoder_num_layers": trial.suggest_int(
+                    "historical_encoder_num_layers", int(modality_space.historical_layers.minimum), int(modality_space.historical_layers.maximum)
+                ),
+                "future_encoder_num_layers": trial.suggest_int(
+                    "future_encoder_num_layers", int(modality_space.future_layers.minimum), int(modality_space.future_layers.maximum)
+                ),
+            }
+        model_config.update(
+            {
+                **temporal_payload,
                 "static_encoder_dim": trial.suggest_categorical(
                     "static_encoder_dim", list(modality_space.static_dim_choices)
                 ),
                 "fusion_hidden_size": trial.suggest_categorical(
                     "fusion_hidden_size",
                     list(modality_space.fusion_hidden_size_choices),
-                ),
-                "target_encoder_num_layers": trial.suggest_int(
-                    "target_encoder_num_layers",
-                    int(modality_space.target_layers.minimum),
-                    int(modality_space.target_layers.maximum),
-                ),
-                "historical_encoder_num_layers": trial.suggest_int(
-                    "historical_encoder_num_layers",
-                    int(modality_space.historical_layers.minimum),
-                    int(modality_space.historical_layers.maximum),
-                ),
-                "future_encoder_num_layers": trial.suggest_int(
-                    "future_encoder_num_layers",
-                    int(modality_space.future_layers.minimum),
-                    int(modality_space.future_layers.maximum),
                 ),
                 "static_encoder_num_layers": trial.suggest_int(
                     "static_encoder_num_layers",
@@ -955,27 +991,17 @@ def suggest_global_candidate(
             }
         )
 
-    if base_training_config.use_auxiliary_autoencoder:
-        model_config.update(
-            {
-                "beta_ae": trial.suggest_float("beta_ae", 1e-5, 1.0, log=True),
-                "ae_hidden_size": trial.suggest_categorical(
-                    "ae_hidden_size", [32, 64, 128, 256]
-                ),
-                "ae_num_layers": trial.suggest_int("ae_num_layers", 1, 3),
-            }
-        )
     if architecture in {"mlp", "mlp_vae"}:
+        shared_hidden_size = trial.suggest_categorical(
+            "mlp_hidden_size", [64, 128]
+        )
+        shared_num_layers = trial.suggest_int("mlp_num_layers", 1, 2)
         model_config.update(
             {
-                "enc_hidden_size": trial.suggest_categorical(
-                    "enc_hidden_size", [32, 64, 128, 256]
-                ),
-                "enc_num_layers": trial.suggest_int("enc_num_layers", 1, 3),
-                "dec_hidden_size": trial.suggest_categorical(
-                    "dec_hidden_size", [32, 64, 128, 256]
-                ),
-                "dec_num_layers": trial.suggest_int("dec_num_layers", 1, 3),
+                "enc_hidden_size": shared_hidden_size,
+                "enc_num_layers": shared_num_layers,
+                "dec_hidden_size": shared_hidden_size,
+                "dec_num_layers": shared_num_layers,
             }
         )
         if architecture == "mlp_vae":
@@ -984,10 +1010,10 @@ def suggest_global_candidate(
         model_config.update(
             {
                 "rnn_hidden_size": trial.suggest_categorical(
-                    "rnn_hidden_size", [32, 64, 128, 256]
+                    "rnn_hidden_size", [64, 128]
                 ),
-                "rnn_num_layers": trial.suggest_int("rnn_num_layers", 1, 3),
-                "decoder_num_layers": trial.suggest_int("decoder_num_layers", 1, 2),
+                "rnn_num_layers": trial.suggest_int("rnn_num_layers", 1, 2),
+                "decoder_num_layers": 1,
                 "rnn_activation": activation,
             }
         )
@@ -995,7 +1021,6 @@ def suggest_global_candidate(
     training_config = replace(
         base_training_config,
         learning_rate=trial.suggest_float("learning_rate", 1e-4, 3e-3, log=True),
-        weight_decay=trial.suggest_float("weight_decay", 1e-8, 1e-3, log=True),
     )
     return GlobalCandidateConfig(
         window_size=window_size,

@@ -42,7 +42,7 @@ def test_global_notebooks_expose_only_the_standardized_pooled_budget() -> None:
             for cell in notebook["cells"]
             if cell.get("cell_type") == "code"
         )
-        assert "Checkpoint 22.3" in code
+        assert "Checkpoint 22.4" in code
         assert 'TRAINING_STRATEGY = "pooled_balanced"' in code
         assert "POOLED_TRAIN_EPOCHS = 60" in code
         assert "POOLED_TRAIN_BATCH = 512" in code

@@ -51,11 +51,12 @@ def active_config() -> GlobalActiveConfiguration:
 
 def test_active_surface_is_strict_serializable_and_cross_validated() -> None:
     config = active_config()
-    assert config.schema_version == "22.3.2b"
+    assert config.schema_version == "22.4"
     assert config.modality_defaults.future_dim == 32
-    assert config.modality_hpo.future_dim_choices == (16, 32, 64, 128)
-    assert config.budget.hpo_trials == 80
-    assert config.budget.hpo_fidelity_epochs == 12
+    assert config.modality_hpo.future_dim_choices == (32, 64)
+    assert config.modality_hpo.couple_temporal_encoders is True
+    assert config.budget.hpo_trials == 36
+    assert config.budget.hpo_fidelity_epochs == 8
     assert config.training_kwargs()["future_encoder_dim"] == 32
     assert config.to_dict()["modality_hpo"]["enabled"] is True
 
@@ -129,11 +130,11 @@ def test_notebooks_expose_only_active_controls_and_explicit_hpo_space() -> None:
         assert "MODALITY_ENCODER_HPO_SPACE = {" in code, name
         assert "GlobalActiveConfiguration(" in code, name
         assert "surface=active_config" in code, name
-        assert "HPO_TRIALS = 80" in code, name
-        assert "HPO_EPOCHS = 5" in code, name
-        assert "HPO_FINALISTS = 8" in code, name
-        assert "HPO_FIDELITY_EPOCHS = 12" in code, name
-        assert '"training_methodology_checkpoint": "22.3.2b"' in code, name
+        assert "HPO_TRIALS = 36" in code, name
+        assert "HPO_EPOCHS = 4" in code, name
+        assert "HPO_FINALISTS = 4" in code, name
+        assert "HPO_FIDELITY_EPOCHS = 8" in code, name
+        assert '"training_methodology_checkpoint": "22.4"' in code, name
         assert all(
             not cell.get("outputs") and cell.get("execution_count") is None
             for cell in notebook.cells

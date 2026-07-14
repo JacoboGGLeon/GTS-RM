@@ -1,6 +1,6 @@
 """Superficie activa y tipada de los notebooks globales GTRM.
 
-Checkpoint 22.3.2b separa explícitamente:
+Checkpoint 22.4 separa explícitamente:
 
 - capacidades activas del modelo;
 - defaults de arquitectura usados sólo como fallback/ablation;
@@ -169,18 +169,21 @@ class ModalityEncoderHPOSpace(_StrictConfig):
     """Espacio arquitectónico que Optuna explora de forma efectiva."""
 
     enabled: bool = True
-    target_dim_choices: Tuple[PositiveInt, ...] = (16, 32, 64, 128)
-    historical_dim_choices: Tuple[PositiveInt, ...] = (16, 32, 64, 128)
-    future_dim_choices: Tuple[PositiveInt, ...] = (16, 32, 64, 128)
-    static_dim_choices: Tuple[PositiveInt, ...] = (8, 16, 32, 64)
-    fusion_hidden_size_choices: Tuple[PositiveInt, ...] = (32, 64, 128, 256)
-    target_layers: IntegerRange = IntegerRange(minimum=1, maximum=3)
-    historical_layers: IntegerRange = IntegerRange(minimum=1, maximum=3)
-    future_layers: IntegerRange = IntegerRange(minimum=1, maximum=3)
-    static_layers: IntegerRange = IntegerRange(minimum=1, maximum=2)
-    fusion_layers: IntegerRange = IntegerRange(minimum=1, maximum=3)
-    dropout: FloatRange = FloatRange(minimum=0.0, maximum=0.35)
-    activations: Tuple[ActivationName, ...] = ("relu", "gelu", "silu", "tanh")
+    # CP22.4 couples the three temporal encoders by default.  Independent
+    # widths/layers remain accepted only for explicit legacy experiments.
+    couple_temporal_encoders: bool = True
+    target_dim_choices: Tuple[PositiveInt, ...] = (32, 64)
+    historical_dim_choices: Tuple[PositiveInt, ...] = (32, 64)
+    future_dim_choices: Tuple[PositiveInt, ...] = (32, 64)
+    static_dim_choices: Tuple[PositiveInt, ...] = (16, 32)
+    fusion_hidden_size_choices: Tuple[PositiveInt, ...] = (64, 128)
+    target_layers: IntegerRange = IntegerRange(minimum=1, maximum=2)
+    historical_layers: IntegerRange = IntegerRange(minimum=1, maximum=2)
+    future_layers: IntegerRange = IntegerRange(minimum=1, maximum=2)
+    static_layers: IntegerRange = IntegerRange(minimum=1, maximum=1)
+    fusion_layers: IntegerRange = IntegerRange(minimum=1, maximum=2)
+    dropout: FloatRange = FloatRange(minimum=0.0, maximum=0.20)
+    activations: Tuple[ActivationName, ...] = ("gelu", "silu")
 
     @field_validator(
         "target_dim_choices",
@@ -203,9 +206,10 @@ class ModalityEncoderHPOSpace(_StrictConfig):
 
 
 class ResidualDecoderConfig(_StrictConfig):
-    """Configuración fija del residual local vigente en Stage 2."""
+    """Refinamiento residual causal vigente en Stage 2.4."""
 
     enabled: bool = True
+    autoregressive: bool = True
     regularization_lambda: NonNegativeFloat = 0.01
     global_aux_alpha: NonNegativeFloat = 0.20
     hidden_size: PositiveInt = 32
@@ -215,6 +219,7 @@ class ResidualDecoderConfig(_StrictConfig):
     def training_kwargs(self) -> dict[str, Any]:
         return {
             "use_local_residual_decoder": bool(self.enabled),
+            "local_residual_autoregressive": bool(self.autoregressive),
             "local_residual_lambda": float(self.regularization_lambda),
             "global_aux_alpha": float(self.global_aux_alpha),
             "local_residual_hidden_size": int(self.hidden_size),
@@ -234,7 +239,7 @@ class AuxiliaryHeadsConfig(_StrictConfig):
     event_loss_share: NonNegativeFloat = 0.40
     magnitude_loss_share: NonNegativeFloat = 0.40
     direction_loss_share: NonNegativeFloat = 0.20
-    hpo_loss_weights: bool = True
+    hpo_loss_weights: bool = False
     legacy_event_loss_weight: NonNegativeFloat = 0.10
     legacy_magnitude_loss_weight: NonNegativeFloat = 0.10
     legacy_direction_loss_weight: NonNegativeFloat = 0.05
@@ -286,15 +291,15 @@ class AuxiliaryHeadsConfig(_StrictConfig):
 class TrainingBudgetConfig(_StrictConfig):
     """Presupuesto de búsqueda y entrenamiento productivo pooled."""
 
-    hpo_trials: PositiveInt = 80
-    hpo_epochs: PositiveInt = 5
-    hpo_windows_per_series: PositiveInt = 8
-    hpo_validation_windows_per_series: PositiveInt = 5
+    hpo_trials: PositiveInt = 36
+    hpo_epochs: PositiveInt = 4
+    hpo_windows_per_series: PositiveInt = 6
+    hpo_validation_windows_per_series: PositiveInt = 4
     hpo_batch: PositiveInt = 512
     hpo_reduction_factor: PositiveInt = 3
-    hpo_finalists: PositiveInt = 8
-    hpo_fidelity_epochs: PositiveInt = 12
-    hpo_fidelity_windows_per_series: PositiveInt = 16
+    hpo_finalists: PositiveInt = 4
+    hpo_fidelity_epochs: PositiveInt = 8
+    hpo_fidelity_windows_per_series: PositiveInt = 12
     hpo_timeout_seconds: PositiveFloat | None = None
     training_strategy: Literal["pooled_balanced"] = "pooled_balanced"
     pooled_train_epochs: PositiveInt = 60
@@ -360,7 +365,7 @@ class InferenceConfig(_StrictConfig):
 class GlobalActiveConfiguration(_StrictConfig):
     """Contrato raíz de la superficie activa de los cuatro notebooks."""
 
-    schema_version: Literal["22.3.2b"] = "22.3.2b"
+    schema_version: Literal["22.4"] = "22.4"
     features: ModelFeatureConfig
     temporal: TemporalForecastConfig = TemporalForecastConfig()
     modality_defaults: ModalityEncoderDefaults

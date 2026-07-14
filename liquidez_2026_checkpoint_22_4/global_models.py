@@ -318,6 +318,9 @@ class GlobalForecastModel(nn.Module, ABC):
 
         use_local = bool(cfg.get("use_local_residual_decoder", False))
         self.use_local_residual_decoder = use_local
+        self.local_residual_autoregressive = bool(
+            cfg.get("local_residual_autoregressive", True)
+        )
         self.local_residual_lambda = float(cfg.get("local_residual_lambda", 0.01))
         self.global_aux_alpha = float(cfg.get("global_aux_alpha", 0.2))
         if self.local_residual_lambda < 0.0:
@@ -342,14 +345,30 @@ class GlobalForecastModel(nn.Module, ABC):
         local_dropout = float(cfg.get("local_residual_dropout_rate", dropout))
         if not 0.0 <= local_dropout < 1.0:
             raise ValueError("local_residual_dropout_rate must be in [0, 1)")
-        self.local_residual_decoder = _make_mlp(
-            local_input_dim,
-            local_hidden_size,
-            1,
-            num_hidden_layers=local_layers,
-            activation=cfg.get("local_residual_activation", activation),
-            dropout=local_dropout,
-        )
+        if self.local_residual_autoregressive:
+            # The refinement consumes only the previous global prediction and
+            # previous residual.  It is therefore causal along the forecast
+            # horizon and never sees the future target (no teacher forcing).
+            cells = nn.ModuleList()
+            for layer_index in range(local_layers):
+                input_size = local_input_dim + 2 if layer_index == 0 else local_hidden_size
+                cells.append(nn.GRUCell(input_size, local_hidden_size))
+            self.local_residual_decoder = nn.ModuleDict(
+                {
+                    "cells": cells,
+                    "dropout": nn.Dropout(local_dropout),
+                    "head": nn.Linear(local_hidden_size, 1),
+                }
+            )
+        else:
+            self.local_residual_decoder = _make_mlp(
+                local_input_dim,
+                local_hidden_size,
+                1,
+                num_hidden_layers=local_layers,
+                activation=cfg.get("local_residual_activation", activation),
+                dropout=local_dropout,
+            )
 
     def _apply_local_residual(
         self,
@@ -361,6 +380,12 @@ class GlobalForecastModel(nn.Module, ABC):
 
         extras: dict[str, Any] = {
             "use_local_residual_decoder": bool(self.use_local_residual_decoder),
+            "local_residual_mode": (
+                "autoregressive"
+                if self.use_local_residual_decoder
+                and self.local_residual_autoregressive
+                else "parallel"
+            ),
         }
         if not self.use_local_residual_decoder:
             return y_global, extras
@@ -370,7 +395,38 @@ class GlobalForecastModel(nn.Module, ABC):
             -1, self.dimensions.horizon, -1
         )
         residual_input = torch.cat((repeated_embedding, future_context), dim=-1)
-        delta_local = self.local_residual_decoder(residual_input)
+        if self.local_residual_autoregressive:
+            if not isinstance(self.local_residual_decoder, nn.ModuleDict):
+                raise RuntimeError("Autoregressive residual decoder is malformed")
+            cells = self.local_residual_decoder["cells"]
+            dropout = self.local_residual_decoder["dropout"]
+            head = self.local_residual_decoder["head"]
+            hidden = [
+                residual_input.new_zeros((residual_input.shape[0], cell.hidden_size))
+                for cell in cells
+            ]
+            previous_global = residual_input.new_zeros((residual_input.shape[0], 1))
+            previous_delta = residual_input.new_zeros((residual_input.shape[0], 1))
+            deltas: list[torch.Tensor] = []
+            for horizon_index in range(self.dimensions.horizon):
+                state = torch.cat(
+                    (
+                        residual_input[:, horizon_index, :],
+                        previous_global,
+                        previous_delta,
+                    ),
+                    dim=-1,
+                )
+                for layer_index, cell in enumerate(cells):
+                    hidden[layer_index] = cell(state, hidden[layer_index])
+                    state = dropout(hidden[layer_index])
+                current_delta = head(state)
+                deltas.append(current_delta)
+                previous_global = y_global[:, horizon_index, :]
+                previous_delta = current_delta
+            delta_local = torch.stack(deltas, dim=1)
+        else:
+            delta_local = self.local_residual_decoder(residual_input)
         if delta_local.shape != y_global.shape:
             raise ValueError("delta_local shape must match y_global")
         y_pred = y_global + delta_local

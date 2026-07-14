@@ -10,5 +10,5 @@ python -m pip install -r requirements-lock.txt
 python -m pip install -e . --no-deps
 python -m compileall -q .
 python -m pytest -q
-(cd liquidez_2026_checkpoint_22_3_2b && python -m pytest -q --confcutdir=.)
+(cd liquidez_2026_checkpoint_22_4 && python -m pytest -q --confcutdir=.)
 ```

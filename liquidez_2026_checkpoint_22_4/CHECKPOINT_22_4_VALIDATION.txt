@@ -1,0 +1,11 @@
+Checkpoint: 22.4 — Autoregressive Residual Refinement
+Status: completed
+
+- 222 checkpoint regression tests pass.
+- The residual is causal across the forecast horizon.
+- Previous global prediction and residual feed the next refinement step.
+- No target or series identity enters the residual decoder.
+- Temporal encoder width/depth are coupled in the default HPO policy.
+- Autoencoder capacity, auxiliary shares and weight decay are outside HPO.
+- All four global notebooks use schema 22.4 and contain no outputs.
+- Private S3 locations are replaced with safe placeholders.

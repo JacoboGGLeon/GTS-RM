@@ -11,7 +11,8 @@ without rewriting validated code.
 - The first use case is `MAC3_TEST`.
 - The library scaffold lives in `src/gts_rm`.
 - Legacy CP20 modules remain in `liquidez_2026_cp20_prework_financial_gpt`.
-- CP22.3.2b and the P0 pre-architecture gate live in `liquidez_2026_checkpoint_22_3_2b`.
+- CP22.4 and its autoregressive residual refinement live in `liquidez_2026_checkpoint_22_4`.
+- CP22.4 uses a compact HPO policy: user-facing compute controls remain configurable while low-value architectural constants stay internal.
 
 ## Install
 

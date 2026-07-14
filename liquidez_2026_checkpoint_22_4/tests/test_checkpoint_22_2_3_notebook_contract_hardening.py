@@ -89,10 +89,10 @@ class DummyManager:
 def test_run_contract_is_strict_pydantic_and_serializable() -> None:
     contract = _contract()
     assert isinstance(contract, BaseModel)
-    assert contract.schema_version == "22.3.2b"
+    assert contract.schema_version == "22.4"
     assert contract.phase_order == TRAINING_PHASE_ORDER
     payload = contract.to_dict()
-    assert payload["schema_version"] == "22.3.2b"
+    assert payload["schema_version"] == "22.4"
     assert payload["phase_order"] == [phase.value for phase in TRAINING_PHASE_ORDER]
     assert payload["training"]["selection_metric"] == payload["hpo"]["objective_metric"]
     assert payload["schedule"]["training_order"] == "pooled_balanced"

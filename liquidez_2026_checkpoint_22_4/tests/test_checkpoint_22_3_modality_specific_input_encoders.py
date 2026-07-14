@@ -168,7 +168,19 @@ def test_hpo_tunes_every_modality_encoder_and_fusion() -> None:
         "modality_encoder_activation",
     }
     assert expected.issubset(candidate.model_config)
-    assert expected.issubset(trial.params)
+    assert {
+        "temporal_encoder_dim",
+        "temporal_encoder_num_layers",
+        "static_encoder_dim",
+        "fusion_hidden_size",
+        "static_encoder_num_layers",
+        "fusion_num_layers",
+        "modality_encoder_dropout_rate",
+        "modality_encoder_activation",
+    }.issubset(trial.params)
+    assert "target_encoder_dim" not in trial.params
+    assert candidate.model_config["target_encoder_dim"] == candidate.model_config["historical_encoder_dim"]
+    assert candidate.model_config["historical_encoder_dim"] == candidate.model_config["future_encoder_dim"]
     assert candidate.model_config["use_modality_specific_encoders"] is True
 
 
@@ -199,7 +211,7 @@ def test_all_global_notebooks_enable_and_serialize_stage_23_contract() -> None:
         assert "MODALITY_ENCODER_HPO_SPACE = {" in source, name
         assert '"enabled": True' in source, name
         assert ("use_modality_specific_encoders=(" in source or "use_modality_specific_encoders=feature_config.use_modality_specific_encoders" in source), name
-        assert '"training_methodology_checkpoint": "22.3.2b"' in source, name
+        assert '"training_methodology_checkpoint": "22.4"' in source, name
         assert all(
             not cell.get("outputs") and cell.get("execution_count") is None
             for cell in notebook.cells

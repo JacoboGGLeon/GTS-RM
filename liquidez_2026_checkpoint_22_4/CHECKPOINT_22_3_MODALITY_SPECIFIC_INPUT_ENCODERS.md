@@ -174,7 +174,7 @@ También pasaron:
 El siguiente checkpoint implementará:
 
 ```text
-22.4 — Autoregressive Residual Refinement
+22.3.2b — Autoregressive Residual Refinement
 ```
 
 Todavía no se implementan:
