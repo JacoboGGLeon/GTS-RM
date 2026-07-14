@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gts-rm"
-version = "0.1.0"
-description = "Global Time-Series Representation Model library scaffold for the MAC3_TEST use case."
+version = "0.2.0"
+description = "Global Time-Series Representation Model with CP22.3.2b P0 diagnostics."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

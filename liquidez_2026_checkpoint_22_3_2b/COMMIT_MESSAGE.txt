@@ -1,0 +1,10 @@
+checkpoint 22.3.2b: separate total forecast horizon from rollout chunk
+
+- add strict TemporalForecastConfig to the active notebook surface
+- define FORECAST_HORIZON as the maximum total number of exported future steps
+- define ROLLOUT_CHUNK_SIZE as the target/output length of one model forward
+- rename visible STRIDE to TRAINING_STRIDE and document sliding-window semantics
+- train datasets with rollout chunks and repeat blocks during long-horizon inference
+- cap both n_steps and explicit date ranges by the authorized forecast horizon
+- document the temporal contract in all four global notebooks
+- preserve encoders, decoders, losses, HPO and pooled-balanced training

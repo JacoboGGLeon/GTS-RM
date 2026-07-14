@@ -1,0 +1,12 @@
+Checkpoint 21.3 validation
+
+Commands executed:
+
+1) python -m pytest -q tests/test_checkpoint_21_3_history_embedding_diagnostics.py
+   Result: 3 passed, 1 skipped
+   Note: the collect→diagnose integration test is skipped in this container because polars is not installed.
+
+2) python -W error::SyntaxWarning -m compileall -q .
+   Result: PASS
+
+The checkpoint is warning-free under strict SyntaxWarning compilation and the pandas-only diagnostics/export path is fully validated.

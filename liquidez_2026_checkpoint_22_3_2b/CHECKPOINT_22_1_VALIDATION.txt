@@ -1,0 +1,14 @@
+Checkpoint 22.1 — Pooled Balanced Training Schedule
+
+Validated commands:
+
+python -m pytest -q tests/test_checkpoint_22_1_pooled_balanced_training.py
+  -> 2 passed
+
+python -W error::SyntaxWarning -m compileall -q .
+  -> PASS
+
+Notes:
+- The new training_order="pooled" keeps the balanced sampler but trains one pooled all-level stage.
+- In pooled mode, WARM_EPOCHS is the productive training budget; FINE_EPOCHS and CONSOLIDATION_EPOCHS remain available for curriculum comparisons but are not used by the pooled stage.
+- Notebook defaults were copied to the fast/precise Stage 2 config requested by the user.

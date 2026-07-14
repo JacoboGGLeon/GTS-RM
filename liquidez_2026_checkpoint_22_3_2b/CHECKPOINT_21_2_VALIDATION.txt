@@ -1,0 +1,19 @@
+Checkpoint 21.2 validation
+==========================
+
+Commands executed locally in the bundle directory:
+
+  python -m pytest -q tests/test_checkpoint_21_2_stage1_acceptance_report.py
+  python -W error::SyntaxWarning -m compileall -q .
+
+Expected result:
+
+  4 passed
+  compileall PASS
+
+Notes:
+
+- The new tests do not require Polars; they use pandas fixtures so the Stage 1
+  acceptance gate can be validated in lightweight CI.
+- Existing full-suite tests may still require project dependencies such as
+  polars/optuna/torch.

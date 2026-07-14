@@ -33,6 +33,7 @@ def test_gts_rm_exports_cp20_core() -> None:
     import gts_rm
 
     assert gts_rm.CP20_BUNDLE_ROOT.exists()
+    assert gts_rm.CP22_BUNDLE_ROOT.exists()
     assert gts_rm.MAC3_TEST_ROOT.exists()
     assert gts_rm.list_global_models() == tuple(SUPPORTED_ARCHITECTURES)
     assert gts_rm.FinancialGPTStageConfig().flags.use_static_context is True

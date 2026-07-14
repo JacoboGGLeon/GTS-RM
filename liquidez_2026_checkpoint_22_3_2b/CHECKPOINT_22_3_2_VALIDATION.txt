@@ -1,0 +1,14 @@
+Checkpoint: 22.3.2 — Active Configuration and HPO Surface Hardening
+
+Validation summary
+- 207 pytest tests collected and passed in isolated groups.
+- 4/4 checkpoint-specific gates passed.
+- Strict compileall passed.
+- All four global notebooks compile.
+- All notebook code cells have empty outputs and null execution_count.
+- Notebook surface contains no USE_CALENDAR_ENCODER, USE_PATCH_TOKENIZER, USE_QUANTILE_HEAD, USE_SELF_SUPERVISED_PRETRAINING, USE_HPO, LATENT_DIM or HPO_MODALITY_ENCODER_ARCHITECTURE controls.
+- Modality encoder defaults and the Optuna search space are separate Pydantic contracts.
+- GlobalHPOConfig serializes the explicit modality search space.
+- GlobalNotebookRunContract schema is 22.3.2 and validates the active surface against training, HPO and pooled schedule configs.
+- HPO budget is 80 proxy trials, 5 proxy epochs, 8 finalists and 12 medium-fidelity epochs.
+- Model architecture and forward behavior are unchanged.

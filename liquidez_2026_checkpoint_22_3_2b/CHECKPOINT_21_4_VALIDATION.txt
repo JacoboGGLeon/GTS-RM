@@ -1,0 +1,13 @@
+Checkpoint 21.4 — Static Context Ablation validation
+
+Commands executed:
+
+1. python -m pytest -q tests/test_checkpoint_21_4_static_context_ablation.py
+   Result: PASS — 5 tests passed.
+
+2. python -W error::SyntaxWarning -m compileall -q .
+   Result: PASS.
+
+Notes:
+- Full checkpoint-21 pytest sweep was not executed in this container because tests/test_checkpoint_21_gtrm_stage1_representation_base.py imports polars and this runtime does not have polars installed.
+- The new checkpoint-21.4 module is pandas/stdlib based and does not require polars.

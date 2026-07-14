@@ -1,0 +1,28 @@
+Checkpoint 21 validation
+========================
+
+Executed in the available container:
+
+1) python -m compileall -q .
+   Status: PASS
+   Note: pre-existing SyntaxWarning in losses.py docstring: invalid escape sequence '\('.
+
+2) python - <<'PY'
+   import global_contracts
+   print(global_contracts.default_gtrm_stage1_flags())
+   from gtrm_representation import gtrm_stage1_manifest
+   print(gtrm_stage1_manifest()['checkpoint'])
+   PY
+   Status: PASS
+
+3) python -m unittest tests/test_checkpoint_21_gtrm_stage1_representation_base.py -v
+   Status: NOT EXECUTED in this container because runtime dependency `polars` is not installed.
+   The checkpoint test file was added and is expected to run in the project environment where
+   previous checkpoint tests already require polars.
+
+Functional gates added:
+- Explicit GTRM Stage 1 flags.
+- Optional static context ablation without changing forward contract.
+- Explicit history_embedding output validation.
+- Embedding export utility.
+- Stage 1 manifest with acceptance metrics.

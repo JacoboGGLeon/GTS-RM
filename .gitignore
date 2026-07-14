@@ -12,6 +12,7 @@ htmlcov/
 
 .env
 .venv/
+.deps/
 venv/
 env/
 

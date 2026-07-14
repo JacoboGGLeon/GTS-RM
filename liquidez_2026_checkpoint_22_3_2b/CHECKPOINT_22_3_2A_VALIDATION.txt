@@ -1,0 +1,11 @@
+Checkpoint: 22.3.2a Active Configuration Hotfix
+
+Validation summary
+- 210/210 tests passed by isolated groups.
+- 4/4 global notebooks compile.
+- 4/4 notebooks have empty outputs and null execution_count.
+- GTRM_STAGE removed from notebook parameter surfaces.
+- No active_config circular reference remains.
+- HPO_TIMEOUT_SECONDS is connected to TrainingBudgetConfig.
+- Pydantic blocks are constructed independently before GlobalActiveConfiguration.
+- No architecture, dataset, loss, HPO search space, pooled training, or forecast behavior changed.

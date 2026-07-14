@@ -1,0 +1,44 @@
+Checkpoint 22.3 — Modality-Specific Input Encoders validation
+
+1. Dedicated checkpoint tests
+   PYTHONPATH=. OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 pytest -q \
+     tests/test_checkpoint_22_3_modality_specific_input_encoders.py
+   Result: 7 passed
+
+2. Full historical regression, isolated by groups
+   Group results:
+   - checkpoints 0, 10, 11, 12, 13: 27 passed
+   - checkpoints 14-18: 29 passed
+   - checkpoints 19, 1, 20, 21.1-21.4: 42 passed
+   - checkpoint 21 base and 22.x: 33 passed
+   - checkpoints 2-5: 40 passed
+   - checkpoints 6-7: 15 passed
+   - checkpoint 8: 6 passed
+   - checkpoint 9: 7 passed
+
+   Total: 199 passed
+
+   Note: the monolithic pytest process completes all assertions but does not
+   terminate reliably in this container after accumulating plotting/PyTorch
+   resources. Every test module passes in isolated processes.
+
+3. Strict Python compilation
+   PYTHONPATH=. python -W error::SyntaxWarning -m compileall -q -f .
+   Result: passed
+
+4. Notebook validation
+   - 4/4 global notebooks compile as Python source
+   - USE_MODALITY_SPECIFIC_ENCODERS=True present
+   - HPO_MODALITY_ENCODER_ARCHITECTURE=True present
+   - no saved outputs
+   - no execution counts
+   Result: passed
+
+5. Architecture gates
+   - MLP, MLP-VAE, RNN and RNN-Bi return y_pred [B,H,1]
+   - history_embedding remains [B,latent_dim]
+   - target/history/future/static embeddings have explicit shapes
+   - all four input tensors receive finite non-zero gradients
+   - residual and auxiliary heads consume encoded future context
+   - strict state_dict round-trip passes for all four architectures
+   Result: passed

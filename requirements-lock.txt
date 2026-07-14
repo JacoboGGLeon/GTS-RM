@@ -1,0 +1,13 @@
+boto3==1.40.18
+matplotlib==3.10.5
+nbformat==5.10.4
+numpy==2.3.2
+optuna==4.5.0
+pandas==2.2.3
+polars==1.32.3
+pyarrow==21.0.0
+pydantic==2.11.7
+pytest==8.4.1
+scikit-learn==1.7.1
+torch==2.8.0
+tqdm==4.67.1

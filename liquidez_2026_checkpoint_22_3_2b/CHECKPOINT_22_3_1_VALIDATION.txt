@@ -1,0 +1,11 @@
+Checkpoint: 22.3.1 — Standardized Pooled Productive Training
+
+Validation summary
+- 203 pytest tests passed in isolated groups.
+- 17/17 focused tests for notebook contract, modality encoders and pooled standardization passed together.
+- Strict compileall passed.
+- All four global notebooks compile.
+- All code cells have empty outputs and null execution_count.
+- No WARM_EPOCHS, FINE_EPOCHS, CONSOLIDATION_EPOCHS, HPOWarmupRequest, FineTuneRequest, run_hpo_and_warmup or run_finetune remain in the four global notebooks.
+- Public workflow is hpo_and_pooled_training -> backtest -> forecast.
+- Artifact schema is 1.5 and loader accepts legacy 1.4 manifests.

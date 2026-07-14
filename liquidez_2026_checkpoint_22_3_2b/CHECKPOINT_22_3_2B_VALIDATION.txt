@@ -1,0 +1,16 @@
+Checkpoint: 22.3.2b — Temporal Horizon Separation
+Status: PASSED
+
+Validation summary
+- 216/216 tests passed in isolated groups.
+- 6/6 checkpoint-specific tests passed.
+- Four global notebooks parse as valid Python cell-by-cell.
+- Four global notebooks have empty outputs and execution_count=None.
+- Strict compileall passed.
+- FORECAST_HORIZON=25 is connected to ForecastRequest.n_steps/max_steps.
+- ROLLOUT_CHUNK_SIZE=3 is connected to dataset/model horizon.
+- TRAINING_STRIDE=1 is connected only to sliding-window origin movement.
+- Dynamic test confirms a 7-step request with chunk=3 performs 3 forward blocks and exports exactly 7 rows.
+- Pydantic rejects rollout_chunk_size > forecast_horizon.
+- ForecastRequest rejects n_steps > max_steps.
+- Model architecture, losses, HPO and pooled training remain unchanged.

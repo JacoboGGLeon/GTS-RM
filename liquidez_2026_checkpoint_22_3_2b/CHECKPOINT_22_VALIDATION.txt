@@ -1,0 +1,24 @@
+Checkpoint 22 validation
+========================
+
+Commands executed:
+
+1) python -m pytest -q tests/test_checkpoint_22_local_residual_decoder.py
+   Result: 3 passed, 2 skipped
+   Note: skipped tests require polars because they import global_training.py.
+
+2) python -m pytest -q tests/test_checkpoint_21_1_gtrm_config_architecture.py tests/test_checkpoint_22_local_residual_decoder.py
+   Result: 7 passed, 2 skipped
+
+3) python -W error::SyntaxWarning -m compileall -q .
+   Result: PASS
+
+Functional scope validated in this container:
+- Local residual decoder output contract.
+- y_pred = y_global + delta_local.
+- global-only path does not emit local tensors.
+- GTRM stage 2 allows residual and still rejects future heads.
+- strict compileall warning-free.
+
+Environment limitation:
+- polars is not installed in this container, so tests importing global_training.py are skipped here.

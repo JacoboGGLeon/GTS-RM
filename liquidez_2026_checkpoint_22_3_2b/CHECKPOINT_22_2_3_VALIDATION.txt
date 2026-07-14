@@ -1,0 +1,54 @@
+Checkpoint 22.2.3 — Notebook Contract Hardening
+Validation date: 2026-07-13
+
+Scope
+-----
+- Strict Pydantic run contract and phase request models.
+- Ordered public workflow: HPO+warm-up -> fine-tuning/consolidation -> backtest -> forecast.
+- Public GlobalManager phase methods and result views.
+- Four global notebooks migrated away from private methods and attributes.
+- No architecture, loss, sampler, target, HPO budget, or forecasting behavior changed.
+
+Targeted checkpoint validation
+------------------------------
+Command:
+  OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 \
+  NUMEXPR_NUM_THREADS=1 PYTHONPATH=. \
+  pytest -q tests/test_checkpoint_22_2_3_notebook_contract_hardening.py
+
+Result:
+  6 passed
+
+Full regression validation
+--------------------------
+- 192 tests collected.
+- 192 tests passed when executed in isolated checkpoint groups.
+- The monolithic pytest process was not used as the release claim because this
+  container accumulated CPU/thread resources during one long process. Running
+  the same suite by checkpoint group with BLAS/OpenMP limited to one thread
+  completed successfully with no test failures.
+
+Historical contract updates validated
+-------------------------------------
+- Checkpoint 20 test now expects the current pooled training order.
+- Stage 1 tests include the inherited event/magnitude/direction flags and target parameters.
+- Notebook tests require the new public GlobalTrainingWorkflow API and reject private manager calls.
+- Auxiliary-head mock output uses the canonical y_pred field.
+
+Static validation
+-----------------
+Command:
+  PYTHONWARNINGS=error::SyntaxWarning PYTHONPATH=. python -m compileall -q -f .
+
+Result:
+  passed
+
+Notebook gates
+--------------
+- 4/4 global notebooks compile as Python source.
+- 4/4 contain exactly one parameter cell.
+- 4/4 have empty outputs and null execution counts.
+- 4/4 construct GlobalNotebookRunContract and GlobalTrainingWorkflow.
+- 4/4 persist notebook_run_contract.json and workflow_snapshot.json.
+- 0 private GlobalManager training/inference method calls in notebooks.
+- 0 private GlobalManager result attribute reads in notebooks.

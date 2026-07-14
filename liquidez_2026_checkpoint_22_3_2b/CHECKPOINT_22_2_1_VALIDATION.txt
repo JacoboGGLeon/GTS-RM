@@ -1,0 +1,20 @@
+Checkpoint 22.2.1 validation
+=============================
+
+Executed in container:
+
+  python -m pytest -q tests/test_checkpoint_22_2_1_auxiliary_loss_block_hpo.py tests/test_checkpoint_22_2_agnostic_auxiliary_heads.py
+
+Result:
+
+  3 passed, 3 skipped
+
+Skipped tests require polars through global_training/global_data import path. The no-polars path still validates model-side auxiliary heads.
+
+Executed:
+
+  python -W error::SyntaxWarning -m compileall -q .
+
+Result:
+
+  PASS

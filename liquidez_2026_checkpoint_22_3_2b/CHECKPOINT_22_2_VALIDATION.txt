@@ -1,0 +1,14 @@
+Checkpoint 22.2 validation
+==========================
+
+Commands executed in this container:
+
+1) python -m pytest -q tests/test_checkpoint_22_2_agnostic_auxiliary_heads.py
+   Result: 3 passed
+
+2) python -W error::SyntaxWarning -m compileall -q .
+   Result: PASS
+
+Notes:
+- The new unit test is torch/config only and does not depend on polars.
+- Existing full test suites that instantiate GlobalWindowDataset still require polars in the target runtime.
